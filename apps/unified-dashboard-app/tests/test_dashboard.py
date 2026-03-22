@@ -98,3 +98,42 @@ def test_export_data():
         "attachment; filename=ai_life_suite_export.zip"
         in response.headers["content-disposition"]
     )
+
+
+def test_auth_full_flow():
+    import uuid
+    test_user = f"testuser_{uuid.uuid4().hex[:6]}"
+    
+    # Register
+    resp = client.post("/api/v1/auth/register", json={"username": test_user, "password": "pw"})
+    assert resp.status_code == 200
+    
+    # Register duplicate
+    resp2 = client.post("/api/v1/auth/register", json={"username": test_user, "password": "pw"})
+    assert resp2.status_code == 409
+    
+    # Login
+    resp3 = client.post("/api/v1/auth/login", json={"username": test_user, "password": "pw"})
+    assert resp3.status_code == 200
+    token = resp3.json()["access_token"]
+    
+    # Login invalid pw
+    resp4 = client.post("/api/v1/auth/login", json={"username": test_user, "password": "wrong"})
+    assert resp4.status_code == 401
+    
+    # Login non-existent
+    resp5 = client.post("/api/v1/auth/login", json={"username": "nobody", "password": "pw"})
+    assert resp5.status_code == 401
+    
+    # Get me
+    resp6 = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert resp6.status_code == 200
+    assert resp6.json()["username"] == test_user
+    
+    # Get me unauthorized
+    resp7 = client.get("/api/v1/auth/me")
+    assert resp7.status_code == 401
+    
+    # Get me invalid token
+    resp8 = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer invalidtoken"})
+    assert resp8.status_code == 401

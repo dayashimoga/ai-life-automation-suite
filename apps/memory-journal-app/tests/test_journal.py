@@ -98,3 +98,77 @@ def test_process_video():
         assert "Transcript" in data["caption"]
     finally:
         cv2.VideoCapture = original_cap
+
+
+def test_caption_gps_parsing(tmp_path):
+    from services.captioning import captioning_service
+    f1 = tmp_path / "empty.jpg"
+    f1.write_bytes(b"")
+    assert captioning_service._parse_exif_gps(str(f1)) is None
+
+    f2 = tmp_path / "dummy.jpg"
+    f2.write_bytes(b"\xff\xd8\xff\xe1\x00\x00Exif\x00\x00")
+    assert captioning_service._parse_exif_gps(str(f2)) is None
+
+    f3 = tmp_path / "gps.jpg"
+    f3.write_bytes(b"\xff\xd8\xff\xe1\x00\x00Exif\x00\x00GPS")
+    assert captioning_service._parse_exif_gps(str(f3)) is None
+
+    assert captioning_service._parse_exif_gps("/non/existent/file.jpg") is None
+
+
+def test_caption_reverse_geocode():
+    from services.captioning import captioning_service
+    assert captioning_service._reverse_geocode(35.0, -90.0) == "United States"
+    assert captioning_service._reverse_geocode(45.0, 10.0) == "Europe"
+    assert captioning_service._reverse_geocode(20.0, 80.0) == "India"
+    assert captioning_service._reverse_geocode(-20.0, 140.0) == "Australia"
+    assert "Coordinates" in captioning_service._reverse_geocode(0.0, 0.0)
+
+
+def test_caption_date_extraction():
+    from services.captioning import captioning_service
+    assert captioning_service._extract_date_from_name("IMG_15-03-2024.jpg") == "2024-03-15"
+    assert captioning_service._extract_date_from_name("NoDate.jpg") is None
+
+
+def test_semantic_search_engine():
+    from services.search import search_engine
+    docs = [
+        {"caption": "A beautiful sunset at the beach", "tags": ["nature", "ocean"]},
+        {"caption": "City skyline at night", "tags": ["urban"]},
+        {"caption": "Family dinner", "tags": ["food", "celebration"]},
+    ]
+    search_engine.index_documents(docs)
+    
+    res = search_engine.search("sunset beach", top_k=1)
+    assert len(res) == 1
+    assert "sunset" in res[0][0]["caption"]
+
+    res2 = search_engine.search("city", top_k=1)
+    assert len(res2) == 1
+    assert "skyline" in res2[0][0]["caption"]
+    
+    assert search_engine.search("nothinghere") == []
+    
+    search_engine.index_documents([])
+    assert search_engine.search("a") == []
+
+
+def test_video_processing_failure():
+    res = client.post(
+        "/api/v1/journal/process_video",
+        files={"file": ("fake.mp4", b"not a video structure", "video/mp4")},
+    )
+    assert res.status_code == 200
+    assert "video_memory" in res.json()["tags"]
+
+
+def test_semantic_search_endpoint():
+    client.post(
+        "/api/v1/journal/entry",
+        json={"caption": "Test hello", "tags": ["hello"]},
+    )
+    res = client.get("/api/v1/journal/semantic_search?query=hello")
+    assert res.status_code == 200
+    assert "results" in res.json()
