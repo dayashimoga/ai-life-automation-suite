@@ -25,4 +25,3 @@ class Alert(BaseModel):
 class UsageRequest(BaseModel):
     app_name: str
     minutes: int
-

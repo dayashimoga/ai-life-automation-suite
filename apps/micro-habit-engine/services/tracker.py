@@ -2,7 +2,6 @@ import math
 from datetime import datetime
 from core.database import get_logs, get_distinct_habits
 
-
 SCORE_PER_LOG = 10
 DECAY_RATE_PER_HOUR = 0.05  # 5% per hour
 
@@ -10,7 +9,12 @@ DECAY_RATE_PER_HOUR = 0.05  # 5% per hour
 def calculate_score(habit_name: str) -> dict:
     logs = get_logs(habit_name)
     if not logs:
-        return {"raw_score": 0, "decayed_score": 0, "streak_days": 0, "last_logged": None}
+        return {
+            "raw_score": 0,
+            "decayed_score": 0,
+            "streak_days": 0,
+            "last_logged": None,
+        }
 
     raw_score = len(logs) * SCORE_PER_LOG
     last_logged_str = logs[0]["timestamp"]

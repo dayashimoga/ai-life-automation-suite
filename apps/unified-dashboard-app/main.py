@@ -32,9 +32,11 @@ SERVICES = {
     "habit": "http://localhost:8004",
 }
 
+
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "service": "unified-dashboard"}
+
 
 @app.get("/api/v1/status")
 async def get_services_status():
@@ -49,13 +51,16 @@ async def get_services_status():
                 statuses[name] = "offline"
     return statuses
 
+
 # Notification Pub/Sub queues
 clients = set()
+
 
 class NotificationPayload(BaseModel):
     title: str
     body: str
     icon: str = "fa-bell"
+
 
 @app.post("/api/v1/notifications/push")
 async def push_notification(payload: NotificationPayload):
@@ -66,11 +71,12 @@ async def push_notification(payload: NotificationPayload):
             client_queue.put_nowait(payload.dict())
         except asyncio.QueueFull:
             dead_clients.add(client_queue)
-    
+
     for c in dead_clients:
         clients.remove(c)
-    
+
     return {"status": "dispatched", "listeners": len(clients)}
+
 
 @app.get("/api/v1/notifications/stream")
 async def notification_stream():
@@ -89,36 +95,40 @@ async def notification_stream():
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
+
 @app.get("/api/v1/export")
 async def export_data():
     """Dynamically packages all microservice independent SQLite DBs into a single GDPR ZIP."""
     memory_buffer = io.BytesIO()
-    
+
     # Paths to the independent DBs
     db_paths = {
         "journal_history.db": "../memory-journal-app/history.db",
         "vision_history.db": "../visual-intelligence-app/history.db",
         "doomscroll_history.db": "../doomscroll-breaker-app/history.db",
-        "habit_state.db": "../micro-habit-engine/habit_state.db"
+        "habit_state.db": "../micro-habit-engine/habit_state.db",
     }
 
-    with zipfile.ZipFile(memory_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
+    with zipfile.ZipFile(memory_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
         # Also dump a meta summary
         meta = {"version": "1.0", "timestamp": "current"}
         zf.writestr("export_metadata.json", json.dumps(meta, indent=2))
-        
+
         for name, rel_path in db_paths.items():
             abs_path = os.path.join(os.path.dirname(__file__), rel_path)
             if os.path.exists(abs_path):
                 zf.write(abs_path, arcname=name)
 
     memory_buffer.seek(0)
-    
+
     return StreamingResponse(
-        memory_buffer, 
-        media_type="application/zip", 
-        headers={"Content-Disposition": "attachment; filename=ai_life_suite_export.zip"}
+        memory_buffer,
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": "attachment; filename=ai_life_suite_export.zip"
+        },
     )
+
 
 # Serve static frontend
 static_dir = os.path.join(os.path.dirname(__file__), "static")

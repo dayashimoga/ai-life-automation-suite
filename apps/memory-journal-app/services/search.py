@@ -2,6 +2,7 @@
 Semantic Search Service — Vector similarity search for journal entries.
 Uses TF-IDF vectorization as a lightweight alternative to sentence-transformers.
 """
+
 import re
 import math
 from typing import List, Dict, Tuple
@@ -20,13 +21,49 @@ class SemanticSearchEngine:
     def _tokenize(self, text: str) -> List[str]:
         """Simple whitespace + punctuation tokenizer with stopword removal."""
         stopwords = {
-            'a', 'an', 'the', 'is', 'are', 'was', 'were', 'be', 'been',
-            'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will',
-            'would', 'could', 'should', 'may', 'might', 'shall', 'can',
-            'of', 'in', 'to', 'for', 'with', 'on', 'at', 'from', 'by',
-            'and', 'or', 'but', 'not', 'this', 'that', 'it', 'its',
+            "a",
+            "an",
+            "the",
+            "is",
+            "are",
+            "was",
+            "were",
+            "be",
+            "been",
+            "being",
+            "have",
+            "has",
+            "had",
+            "do",
+            "does",
+            "did",
+            "will",
+            "would",
+            "could",
+            "should",
+            "may",
+            "might",
+            "shall",
+            "can",
+            "of",
+            "in",
+            "to",
+            "for",
+            "with",
+            "on",
+            "at",
+            "from",
+            "by",
+            "and",
+            "or",
+            "but",
+            "not",
+            "this",
+            "that",
+            "it",
+            "its",
         }
-        tokens = re.findall(r'[a-z0-9]+', text.lower())
+        tokens = re.findall(r"[a-z0-9]+", text.lower())
         return [t for t in tokens if t not in stopwords and len(t) > 1]
 
     def _compute_tf(self, tokens: List[str]) -> Dict[str, float]:
@@ -59,7 +96,9 @@ class SemanticSearchEngine:
         self._tfidf_cache = {}
         for i, tokens in enumerate(doc_tokens):
             tf = self._compute_tf(tokens)
-            vector = [tf.get(term, 0) * self._idf.get(term, 0) for term in self._vocabulary]
+            vector = [
+                tf.get(term, 0) * self._idf.get(term, 0) for term in self._vocabulary
+            ]
             self._tfidf_cache[str(i)] = vector
 
     def _cosine_similarity(self, vec_a: List[float], vec_b: List[float]) -> float:
@@ -75,7 +114,9 @@ class SemanticSearchEngine:
 
         query_tokens = self._tokenize(query)
         query_tf = self._compute_tf(query_tokens)
-        query_vector = [query_tf.get(term, 0) * self._idf.get(term, 0) for term in self._vocabulary]
+        query_vector = [
+            query_tf.get(term, 0) * self._idf.get(term, 0) for term in self._vocabulary
+        ]
 
         scored = []
         for i, doc in enumerate(self._documents):

@@ -1,6 +1,5 @@
 from services.tracker import get_all_scores
 
-
 NUDGES = {
     "drink_water": "💧 Stay hydrated! A glass of water boosts focus by 14%.",
     "stretch": "🧘 Quick stretch! Just 30 seconds releases tension and improves circulation.",
@@ -30,11 +29,13 @@ def generate_insights() -> list:
         if status in ("decaying", "critical"):
             nudge = NUDGES.get(s["habit_name"], DEFAULT_NUDGE)
 
-        insights.append({
-            "habit_name": s["habit_name"],
-            "status": status,
-            "nudge": nudge,
-            "streak_days": s["streak_days"],
-            "total_logs": int(s["raw_score"] / 10),
-        })
+        insights.append(
+            {
+                "habit_name": s["habit_name"],
+                "status": status,
+                "nudge": nudge,
+                "streak_days": s["streak_days"],
+                "total_logs": int(s["raw_score"] / 10),
+            }
+        )
     return insights

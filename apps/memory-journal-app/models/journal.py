@@ -21,4 +21,3 @@ class JournalEntryCreate(BaseModel):
     filename: str
     caption: str
     tags: List[str]
-

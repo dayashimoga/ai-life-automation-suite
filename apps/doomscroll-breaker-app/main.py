@@ -8,9 +8,11 @@ app = FastAPI(title=settings.app_name)
 
 app.include_router(usage_router, prefix=settings.api_prefix + "/usage")
 
+
 @app.get("/health")
 def health_check():
     return {"status": "ok", "app": settings.app_name}
+
 
 # Mount frontend UI
 os.makedirs("static", exist_ok=True)

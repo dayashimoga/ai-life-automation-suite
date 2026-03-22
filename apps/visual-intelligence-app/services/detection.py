@@ -28,7 +28,9 @@ class RealDetectionModule:
         detections = []
         if self.model and img is not None:
             # Enforce 75% confidence gating to eliminate silhouette hallucinations (like Meerkats -> Horses)
-            results = self.model.track(img, persist=True, conf=0.75, tracker="bytetrack.yaml")
+            results = self.model.track(
+                img, persist=True, conf=0.75, tracker="bytetrack.yaml"
+            )
             for r in results:
                 boxes = r.boxes
                 for box in boxes:
@@ -60,7 +62,8 @@ class RealDetectionModule:
                         (0, 255, 0),
                         2,
                     )
-                    
+
         return detections, img
+
 
 detection_module = RealDetectionModule()

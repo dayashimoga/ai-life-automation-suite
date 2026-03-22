@@ -16,9 +16,22 @@ def clear_state():
 
 def _mock_detect(self, image_data: bytes):
     from models.vision import Detection, BoundingBox
+
     return [
-        Detection(id="1", track_id=1, label="person", confidence=0.9, bbox=BoundingBox(x=0, y=0, width=10, height=10)),
-        Detection(id="2", track_id=2, label="vehicle", confidence=0.8, bbox=BoundingBox(x=0, y=0, width=10, height=10)),
+        Detection(
+            id="1",
+            track_id=1,
+            label="person",
+            confidence=0.9,
+            bbox=BoundingBox(x=0, y=0, width=10, height=10),
+        ),
+        Detection(
+            id="2",
+            track_id=2,
+            label="vehicle",
+            confidence=0.8,
+            bbox=BoundingBox(x=0, y=0, width=10, height=10),
+        ),
     ], np.zeros((100, 100, 3), dtype=np.uint8)
 
 
@@ -54,6 +67,7 @@ def test_event_engine_generates_queue_event():
     def mock_generate_report(self, tracked_objects):
         from models.vision import CountReport
         from datetime import datetime
+
         return CountReport(counts={"person": 10}, timestamp=datetime.utcnow())
 
     original_report = services.counting.MockCountingModule.generate_report
@@ -81,6 +95,7 @@ def test_websocket_connect():
 
 def test_history_endpoint():
     from core.database import save_analysis
+
     save_analysis("test_video.mp4", [{"horse": 1, "cat": 2}])
     response = client.get("/api/v1/vision/history")
     assert response.status_code == 200
@@ -96,10 +111,22 @@ def test_spatial_analytics_line_crossing():
     frame = np.zeros((200, 200, 3), dtype=np.uint8)
 
     # Object above center (y=50), then crosses below center (y=110)
-    det_above = Detection(id="a", track_id=10, label="person", confidence=0.9, bbox=BoundingBox(x=50, y=40, width=20, height=20))
+    det_above = Detection(
+        id="a",
+        track_id=10,
+        label="person",
+        confidence=0.9,
+        bbox=BoundingBox(x=50, y=40, width=20, height=20),
+    )
     engine.process_frame(frame.copy(), [det_above])
 
-    det_below = Detection(id="b", track_id=10, label="person", confidence=0.9, bbox=BoundingBox(x=50, y=100, width=20, height=20))
+    det_below = Detection(
+        id="b",
+        track_id=10,
+        label="person",
+        confidence=0.9,
+        bbox=BoundingBox(x=50, y=100, width=20, height=20),
+    )
     engine.process_frame(frame.copy(), [det_below])
 
     assert engine.entry_count == 1
@@ -114,7 +141,13 @@ def test_spatial_analytics_heatmap():
     engine = SpatialAnalyticsEngine()
     frame = np.zeros((200, 200, 3), dtype=np.uint8)
 
-    det = Detection(id="c", track_id=20, label="car", confidence=0.95, bbox=BoundingBox(x=80, y=80, width=40, height=40))
+    det = Detection(
+        id="c",
+        track_id=20,
+        label="car",
+        confidence=0.95,
+        bbox=BoundingBox(x=80, y=80, width=40, height=40),
+    )
     result = engine.process_frame(frame.copy(), [det])
 
     assert result is not None

@@ -75,6 +75,7 @@ def test_score_after_logging():
 def test_score_decays():
     """Score should be lower when last log was hours ago."""
     from core.database import log_habit
+
     old_ts = (datetime.utcnow() - timedelta(hours=10)).isoformat()
     log_habit("stretch", old_ts)
 
@@ -105,6 +106,7 @@ def test_insights_after_logging():
 def test_insights_nudge_for_decayed():
     """Old logs should produce a nudge."""
     from core.database import log_habit
+
     old_ts = (datetime.utcnow() - timedelta(hours=48)).isoformat()
     log_habit("walk", old_ts)
 
@@ -118,23 +120,27 @@ def test_insights_nudge_for_decayed():
 # ---------- Tracker Service Unit Tests ----------
 def test_streak_consecutive_days():
     from core.database import log_habit
+
     today = datetime.utcnow()
     for i in range(5):
         ts = (today - timedelta(days=i)).isoformat()
         log_habit("walk", ts)
 
     from services.tracker import calculate_score
+
     result = calculate_score("walk")
     assert result["streak_days"] == 5
 
 
 def test_streak_broken():
     from core.database import log_habit
+
     today = datetime.utcnow()
     log_habit("walk", today.isoformat())
     log_habit("walk", (today - timedelta(days=3)).isoformat())
 
     from services.tracker import calculate_score
+
     result = calculate_score("walk")
     assert result["streak_days"] == 1  # gap breaks streak
 
@@ -142,6 +148,7 @@ def test_streak_broken():
 # ---------- Insights Service Unit Tests ----------
 def test_classify_strength():
     from services.insights import classify_strength
+
     assert classify_strength(100) == "strong"
     assert classify_strength(50) == "moderate"
     assert classify_strength(20) == "decaying"

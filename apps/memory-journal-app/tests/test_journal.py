@@ -59,21 +59,38 @@ def test_search_journal():
     assert response_empty.status_code == 200
     assert response_empty.json()["total"] == 0
 
+
 def test_process_video():
     import cv2
     import numpy as np
-    
+
     original_cap = cv2.VideoCapture
+
     class MockCap:
-        def __init__(self, *args, **kwargs): pass
-        def get(self, prop): return 10
-        def set(self, prop, val): pass
-        def read(self): return True, np.zeros((10,10,3), dtype=np.uint8)
-        def release(self): pass
-        
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def get(self, prop):
+            return 10
+
+        def set(self, prop, val):
+            pass
+
+        def read(self):
+            return True, np.zeros((10, 10, 3), dtype=np.uint8)
+
+        def release(self):
+            pass
+
     cv2.VideoCapture = MockCap
     try:
-        files = {"file": ("test.mp4", b"fake video memory bytes representing mp4 structure", "video/mp4")}
+        files = {
+            "file": (
+                "test.mp4",
+                b"fake video memory bytes representing mp4 structure",
+                "video/mp4",
+            )
+        }
         response = client.post("/api/v1/journal/process_video", files=files)
         assert response.status_code == 200
         data = response.json()

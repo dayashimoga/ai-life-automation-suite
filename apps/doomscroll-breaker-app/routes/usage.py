@@ -24,9 +24,11 @@ async def track_usage(req: UsageRequest):
     record = tracker.log_usage(req.app_name, req.minutes)
     return record
 
+
 @router.get("/alerts", response_model=List[Alert])
 async def get_alerts():
     return tracker.get_alerts()
+
 
 @router.post("/predict")
 async def predict_risk(req: UsageRequest):
@@ -61,17 +63,30 @@ async def get_usage_analytics():
 async def system_monitor():
     """Lightweight system process monitor for app usage detection."""
     import subprocess
+
     try:
         result = subprocess.run(
-            ["powershell", "-Command", "Get-Process | Where-Object {$_.MainWindowTitle -ne ''} | Select-Object ProcessName, Id, CPU | ConvertTo-Json"],
-            capture_output=True, text=True, timeout=5
+            [
+                "powershell",
+                "-Command",
+                "Get-Process | Where-Object {$_.MainWindowTitle -ne ''} | Select-Object ProcessName, Id, CPU | ConvertTo-Json",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=5,
         )
         if result.returncode == 0:
             import json
+
             processes = json.loads(result.stdout) if result.stdout.strip() else []
             if isinstance(processes, dict):
                 processes = [processes]
-            return {"active_apps": [{"name": p.get("ProcessName", ""), "pid": p.get("Id", 0)} for p in processes[:20]]}
+            return {
+                "active_apps": [
+                    {"name": p.get("ProcessName", ""), "pid": p.get("Id", 0)}
+                    for p in processes[:20]
+                ]
+            }
     except Exception:
         pass
     return {"active_apps": [], "error": "System monitor unavailable"}

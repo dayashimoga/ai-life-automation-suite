@@ -47,7 +47,8 @@ def test_alerts_generated_on_threshold():
 
 def test_focus_sessions():
     response = client.post(
-        "/api/v1/usage/focus", json={"duration_minutes": 30, "app_to_block": "video_app"}
+        "/api/v1/usage/focus",
+        json={"duration_minutes": 30, "app_to_block": "video_app"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -59,6 +60,7 @@ def test_focus_sessions():
     sessions = get_resp.json()
     assert len(sessions) == 1
     assert sessions[0]["app_blocked"] == "video_app"
+
 
 def test_predict_risk():
     response = client.post(

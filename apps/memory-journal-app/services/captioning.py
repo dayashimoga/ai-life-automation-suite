@@ -4,6 +4,7 @@ Real Captioning Service — Replaces MockCaptioningService with:
 2. Filename-based NLP tag extraction
 3. Contextual caption generation from image metadata
 """
+
 import os
 import re
 
@@ -31,12 +32,12 @@ class CaptioningService:
     def _parse_exif_gps(self, filepath: str) -> Optional[Tuple[float, float]]:
         """Attempt to extract GPS coordinates from JPEG EXIF data."""
         try:
-            with open(filepath, 'rb') as f:
+            with open(filepath, "rb") as f:
                 data = f.read(65536)  # Read first 64KB for EXIF
-                if data[:2] != b'\xff\xd8':
+                if data[:2] != b"\xff\xd8":
                     return None
                 # Simple EXIF GPS extraction via marker scanning
-                gps_marker = data.find(b'GPS')
+                gps_marker = data.find(b"GPS")
                 if gps_marker > 0:
                     # Found GPS data indicator — extract approximate lat/lon
                     # This is a simplified parser; production would use piexif
@@ -61,8 +62,8 @@ class CaptioningService:
     def _extract_date_from_name(self, filename: str) -> Optional[str]:
         """Extract date patterns from filenames (e.g., IMG_20240315_...)"""
         patterns = [
-            r'(\d{4})[-_]?(\d{2})[-_]?(\d{2})',  # YYYYMMDD
-            r'(\d{2})[-_](\d{2})[-_](\d{4})',      # DDMMYYYY
+            r"(\d{4})[-_]?(\d{2})[-_]?(\d{2})",  # YYYYMMDD
+            r"(\d{2})[-_](\d{2})[-_](\d{4})",  # DDMMYYYY
         ]
         for pattern in patterns:
             match = re.search(pattern, filename)
@@ -80,52 +81,57 @@ class CaptioningService:
     def generate_caption(self, filename: str) -> str:
         """Generate a contextual caption based on filename analysis and metadata."""
         name_lower = filename.lower()
-        base_name = os.path.splitext(filename)[0].replace('_', ' ').replace('-', ' ')
-        
+        base_name = os.path.splitext(filename)[0].replace("_", " ").replace("-", " ")
+
         # Detect scene type from filename
         detected_scenes = []
         for scene, keywords in self.SCENE_KEYWORDS.items():
             if any(kw in name_lower for kw in keywords):
                 detected_scenes.append(scene)
-        
+
         # Extract date context
         date_str = self._extract_date_from_name(filename)
         date_context = f" from {date_str}" if date_str else ""
-        
+
         if detected_scenes:
             scene_desc = " and ".join(detected_scenes)
             return f"A {scene_desc} memory{date_context} — {base_name}"
-        
+
         # Check for common camera naming patterns
-        if any(p in name_lower for p in ['img_', 'dsc_', 'photo_', 'pic_']):
+        if any(p in name_lower for p in ["img_", "dsc_", "photo_", "pic_"]):
             return f"A captured moment{date_context} — {base_name}"
-        elif any(p in name_lower for p in ['screenshot', 'screen']):
+        elif any(p in name_lower for p in ["screenshot", "screen"]):
             return f"A screenshot{date_context} — {base_name}"
-        elif any(p in name_lower for p in ['.mp4', '.mov', '.avi']):
+        elif any(p in name_lower for p in [".mp4", ".mov", ".avi"]):
             return f"A video memory{date_context} — {base_name}"
-        
+
         return f"A personal memory{date_context} — {base_name}"
 
     def extract_tags(self, filename: str) -> List[str]:
         """Extract semantic tags from the filename using NLP keyword matching."""
         name_lower = filename.lower()
         tags = set()
-        
+
         # Scene-based tags
         for scene, keywords in self.SCENE_KEYWORDS.items():
             if any(kw in name_lower for kw in keywords):
                 tags.add(scene)
-        
+
         # Media type tags
         ext = os.path.splitext(filename)[1].lower()
         media_map = {
-            '.jpg': 'photo', '.jpeg': 'photo', '.png': 'image',
-            '.gif': 'animation', '.mp4': 'video', '.mov': 'video',
-            '.heic': 'photo', '.webp': 'image',
+            ".jpg": "photo",
+            ".jpeg": "photo",
+            ".png": "image",
+            ".gif": "animation",
+            ".mp4": "video",
+            ".mov": "video",
+            ".heic": "photo",
+            ".webp": "image",
         }
         if ext in media_map:
             tags.add(media_map[ext])
-        
+
         # Date-based tags
         date_str = self._extract_date_from_name(filename)
         if date_str:
@@ -135,30 +141,35 @@ class CaptioningService:
                 tags.add(str(dt.year))
             except ValueError:
                 pass
-        
+
         # Minimum tags
         if not tags:
             tags = {"memory", "untagged"}
-        
+
         return sorted(list(tags))
 
     def guess_location(self, filename: str) -> str:
         """Attempt EXIF GPS extraction, fall back to filename analysis."""
         name_lower = filename.lower()
-        
+
         # Check for location hints in filename
         location_hints = {
-            "beach": "Coastal Region", "paris": "Paris, France",
-            "london": "London, UK", "tokyo": "Tokyo, Japan",
-            "nyc": "New York City", "sf": "San Francisco, CA",
-            "la": "Los Angeles, CA", "mumbai": "Mumbai, India",
-            "delhi": "New Delhi, India", "dubai": "Dubai, UAE",
+            "beach": "Coastal Region",
+            "paris": "Paris, France",
+            "london": "London, UK",
+            "tokyo": "Tokyo, Japan",
+            "nyc": "New York City",
+            "sf": "San Francisco, CA",
+            "la": "Los Angeles, CA",
+            "mumbai": "Mumbai, India",
+            "delhi": "New Delhi, India",
+            "dubai": "Dubai, UAE",
         }
-        
+
         for hint, location in location_hints.items():
             if hint in name_lower:
                 return location
-        
+
         return "Location pending EXIF analysis"
 
 
