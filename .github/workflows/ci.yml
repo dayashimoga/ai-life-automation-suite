@@ -52,7 +52,7 @@ jobs:
           zip -r ${{ matrix.app }}.zip ${{ matrix.app }}
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.app }}-artifact
           path: apps/${{ matrix.app }}.zip
