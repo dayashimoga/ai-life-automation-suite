@@ -51,7 +51,7 @@ def test_focus_sessions():
     )
     assert response.status_code == 200
     data = response.json()
-    assert data["is_active"] == True
+    assert data["is_active"]
     assert data["app_blocked"] == "video_app"
 
     get_resp = client.get("/api/v1/usage/focus")

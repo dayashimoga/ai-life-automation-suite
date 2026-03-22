@@ -24,9 +24,9 @@ def test_upload_image():
     assert response.status_code == 200
     data = response.json()
     assert data["filename"] == "test_image.jpg"
-    assert "test_image.jpg" in data["caption"]
-    assert "memory" in data["tags"]
-    assert "San Francisco" in data["mock_location"]
+    assert "test image" in data["caption"]
+    assert "photo" in data["tags"]
+    assert "Location pending" in data["mock_location"]
     assert len(db_entries) == 1
 
 

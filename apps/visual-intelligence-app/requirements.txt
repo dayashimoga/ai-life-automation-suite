@@ -6,3 +6,8 @@ python-multipart>=0.0.6
 ultralytics
 opencv-python-headless
 numpy
+
+pytest
+pytest-cov
+
+httpx

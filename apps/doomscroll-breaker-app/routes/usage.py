@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from models.usage import AppUsage, Alert, FocusSession, UsageRequest
+from models.usage import Alert, FocusSession, UsageRequest
 from services.tracker import tracker
 from typing import List
 from services.analyzer import analyzer

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, UploadFile, File
-from models.journal import JournalEntry, JournalResponse, JournalEntryCreate
+from models.journal import JournalEntry, JournalResponse
 from services.captioning import captioning_service
 from services.search import search_engine
-from typing import List, Optional
+from typing import List
 from datetime import datetime
 from uuid import uuid4
 import cv2
@@ -56,7 +56,7 @@ async def process_video_entry(file: UploadFile = File(...)):
     
     try:
         os.remove(tmp_path)
-    except:
+    except Exception:
         pass
         
     tags = ["video_memory"]
@@ -66,7 +66,7 @@ async def process_video_entry(file: UploadFile = File(...)):
     if ret:
         _, buffer = cv2.imencode('.jpg', frame)
         frame_bytes = buffer.tobytes()
-        image_b64 = base64.b64encode(frame_bytes).decode('utf-8')
+        _ = base64.b64encode(frame_bytes).decode('utf-8')
         
         # Microservice Bridge: Query Visual Intelligence Engine natively
         try:

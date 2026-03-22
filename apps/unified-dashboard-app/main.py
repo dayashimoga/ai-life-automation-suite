@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from auth import router as auth_router
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,7 +14,6 @@ import io
 app = FastAPI(title="Unified API Gateway Dashboard", version="1.0.0")
 
 # Include auth routes
-from auth import router as auth_router
 app.include_router(auth_router)
 
 app.add_middleware(

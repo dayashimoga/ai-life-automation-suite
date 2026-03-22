@@ -20,11 +20,17 @@ foreach ($app in $apps) {
 
     Push-Location $appDir
     try {
-        if (Test-Path ".venv_tmp\Scripts\python.exe") {
-            $result = & ".venv_tmp\Scripts\python.exe" -m pytest tests/ -v --tb=short 2>&1
-        } else {
-            $result = & python -m pytest tests/ -v --tb=short 2>&1
+        Write-Host "  -> Creating temporary venv..." -ForegroundColor DarkGray
+        python -m venv .venv_tmp
+        
+        Write-Host "  -> Installing dependencies..." -ForegroundColor DarkGray
+        & .venv_tmp\Scripts\python.exe -m pip install --quiet --upgrade pip
+        if (Test-Path "requirements.txt") {
+            & .venv_tmp\Scripts\python.exe -m pip install --quiet -r requirements.txt
         }
+        
+        Write-Host "  -> Running tests..." -ForegroundColor DarkGray
+        $result = & .venv_tmp\Scripts\python.exe -m pytest tests/ -v --tb=short 2>&1
         $exitCode = $LASTEXITCODE
         Write-Host $result
 
@@ -35,6 +41,10 @@ foreach ($app in $apps) {
             Write-Host "OK $app tests PASSED!" -ForegroundColor Green
         }
     } finally {
+        Write-Host "  -> Cleaning up temporary venv..." -ForegroundColor DarkGray
+        if (Test-Path ".venv_tmp") {
+            Remove-Item -Recurse -Force -ErrorAction SilentlyContinue .venv_tmp
+        }
         Pop-Location
     }
 }

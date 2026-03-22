@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import base64
+
 from typing import Tuple, List
 from models.vision import Detection, BoundingBox
 from uuid import uuid4

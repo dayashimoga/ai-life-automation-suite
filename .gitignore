@@ -43,3 +43,6 @@ weights/
 runs/
 __pycache__/
 
+# Temporaries
+pytest_*.txt
+test_out*.txt

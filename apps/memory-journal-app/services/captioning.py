@@ -6,7 +6,7 @@ Real Captioning Service — Replaces MockCaptioningService with:
 """
 import os
 import re
-import struct
+
 from typing import List, Optional, Tuple
 from datetime import datetime
 

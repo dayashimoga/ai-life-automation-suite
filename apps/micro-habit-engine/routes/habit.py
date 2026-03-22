@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from datetime import datetime
 from models.habit import HabitLog, HabitScore, HabitInsight
 from core.database import log_habit
-from services.tracker import calculate_score, get_all_scores
+from services.tracker import get_all_scores
 from services.insights import generate_insights
 from services.correlation import compute_correlations
 from typing import List

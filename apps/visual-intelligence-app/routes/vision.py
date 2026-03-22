@@ -36,7 +36,7 @@ class ConnectionManager:
         for connection in list(self.active_connections):
             try:
                 await connection.send_json(message)
-            except:
+            except Exception:
                 pass
 
 manager = ConnectionManager()
@@ -114,7 +114,7 @@ async def process_frame(file: UploadFile = File(...)):
         cap.release()
         try:
             os.remove(tmp_path)
-        except:
+        except Exception:
             pass
             
         if last_report:

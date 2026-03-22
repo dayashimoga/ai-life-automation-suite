@@ -6,3 +6,8 @@ pyjwt
 passlib[bcrypt]
 pytest
 pytest-cov
+
+pytest
+pytest-cov
+
+httpx

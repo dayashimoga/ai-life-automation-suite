@@ -1,7 +1,7 @@
 import pytest
 import sys
 import os
-import math
+
 from datetime import datetime, timedelta
 
 # Add app root to path

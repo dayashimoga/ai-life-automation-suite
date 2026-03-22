@@ -4,7 +4,7 @@ micro-habit completion and outcomes across the suite.
 """
 import sqlite3
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from services.tracker import get_all_scores
 
 
