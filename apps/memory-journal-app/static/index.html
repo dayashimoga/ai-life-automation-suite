@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/manifest.json">
+    <title>Memory Journal AI</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <nav class="glass-nav">
+        <h1>✨ Memory Journal</h1>
+        <button id="theme-toggle" class="btn-icon">🌓</button>
+    </nav>
+
+    <main class="container">
+        <section class="upload-section glass-panel">
+            <h2>Capture a Memory</h2>
+            <div id="dropzone" class="glass-panel" style="margin-top:2rem; cursor:pointer; text-align:center; padding:1.5rem; border:1px dashed rgba(255,255,255,0.2);">
+                <p>Click to attach a memory (Image or MP4 Video)</p>
+                <input type="file" id="media-input" accept="image/*,video/mp4" hidden>
+            </div>
+            
+            <img id="image-preview" class="hidden" style="width:100%; border-radius:10px; margin-top:1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" src="" alt="Preview">
+            <button id="upload-btn" class="btn-primary">Journal It ➔</button>
+        </section>
+
+        <section class="timeline-section glass-panel">
+            <div class="timeline-header">
+                <h2>Your Timeline</h2>
+                <button id="refresh-btn" class="btn-secondary">↻ Refresh</button>
+            </div>
+            
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search memories, tags...">
+                <button id="search-btn" class="btn-secondary">Search</button>
+            </div>
+
+            <div id="timeline-container" class="timeline">
+                <!-- Entries injected via JS -->
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

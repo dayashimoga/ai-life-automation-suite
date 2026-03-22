@@ -1,0 +1,45 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+.venv_tmp
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Project Specific
+history.db
+*.sqlite3
+*.db
+authorized_faces/
+*.mp4
+*.jpg
+*.png
+
+# VSCode / IDE
+.vscode/
+.idea/
+*.swp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Phase Tracking & ML
+*.pt
+*.onnx
+weights/
+runs/
+__pycache__/
+

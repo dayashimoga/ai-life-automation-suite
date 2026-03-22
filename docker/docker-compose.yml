@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  memory-journal-app:
+    build:
+      context: ../apps/memory-journal-app
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      - APP_ENV=development
+    volumes:
+      - ../apps/memory-journal-app:/app
+
+  doomscroll-breaker-app:
+    build:
+      context: ../apps/doomscroll-breaker-app
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8000"
+    environment:
+      - APP_ENV=development
+    volumes:
+      - ../apps/doomscroll-breaker-app:/app
+
+  visual-intelligence-app:
+    build:
+      context: ../apps/visual-intelligence-app
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8000"
+    environment:
+      - APP_ENV=development
+    volumes:
+      - ../apps/visual-intelligence-app:/app

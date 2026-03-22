@@ -1,0 +1,15 @@
+{
+  "name": "Visual Intelligence Engine",
+  "short_name": "VisIntel",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0b1120",
+  "theme_color": "#1d2b45",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2FhYjRjYyI+PHBhdGggZD0iTTEyIDRDMi42IDQgMCAxMiAwIDEyczIuNiA4IDEyIDggMTItOCAxMi04LTIuNi04LTEyLTh6bTAgMTMuNWMtMy4xIDAtNS41LTIuNC01LjUtNS41UzguOSA2LjUgMTIgNi41czUuNSAyLjQgNS41 NS41LTIuNCA1LjUtNS41IDUuNXoiLz48cGF0aCBkPSJNMTIgOGMtMi4yIDAtNCAxLjgtNCA0czEuOCA0IDQgNCA0LTEuOCA0LTQtMS44LTQtNC00eiIvPjwvc3ZnPg==",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

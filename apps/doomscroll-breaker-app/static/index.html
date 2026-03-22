@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/manifest.json">
+    <title>Doomscroll Breaker AI</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-gradients">
+        <div class="blob red-blob"></div>
+        <div class="blob orange-blob"></div>
+    </div>
+
+    <nav class="glass-nav">
+        <h1>🛑 Doomscroll Breaker</h1>
+        <button id="theme-toggle" class="btn-icon">🌔</button>
+    </nav>
+
+    <main class="container">
+        <section class="log-section glass-panel">
+            <h2>Log App Usage</h2>
+            <div class="form-group">
+                <input type="text" id="app-name" placeholder="E.g., TikTok, Instagram">
+                <input type="number" id="app-minutes" placeholder="Minutes used...">
+                <button id="log-usage-btn" class="btn-danger">Track Usage</button>
+            </div>
+            <div id="status-message" class="status-message"></div>
+        </section>
+
+        <section class="focus-section glass-panel">
+            <div class="glass-panel" style="margin-bottom: 2rem;">
+                <h2>Track Usage</h2>
+                <input type="text" id="app-name" placeholder="App Name (e.g. TikTok)" class="input-field">
+                <input type="number" id="duration" placeholder="Duration (minutes)" class="input-field" min="1">
+                <button id="track-btn" class="btn-primary" style="width: 100%; margin-top: 1rem;">Log Session</button>
+            </div>
+
+            <div class="glass-panel" style="border: 1px solid rgba(239, 68, 68, 0.3);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h2>Predictive LSTM Intervention</h2>
+                    <span style="background: rgba(239, 68, 68, 0.2); color:#ef4444; padding:2px 8px; border-radius:12px; font-size:0.7rem;">BETA</span>
+                </div>
+                <p style="color:#aab4cc; margin-bottom:1rem; font-size:0.9rem;">Simulate opening a target app to calculate heuristic doomscroll risk mapping.</p>
+                <input type="text" id="predict-app-name" placeholder="Target App (e.g. Instagram)" class="input-field">
+                <button id="predict-btn" class="btn-secondary" style="width: 100%; margin-top: 1rem; background:rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.5); color:#ff8080;">Analyze Risk Vector</button>
+                <div id="prediction-result" class="hidden" style="margin-top:1rem; padding:1rem; border-radius:8px; background:rgba(0,0,0,0.5); text-align:center;"></div>
+            </div>
+            
+            <div id="active-sessions" class="active-sessions">
+                <!-- Active sessions injected here -->
+            </div>
+        </section>
+
+        <section class="alerts-section glass-panel">
+            <div class="timeline-header">
+                <h2>Health Alerts</h2>
+                <button id="refresh-alerts-btn" class="btn-secondary">↻ Sync</button>
+            </div>
+            <div id="alerts-container" class="alerts-container">
+                <!-- Alerts injected here -->
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

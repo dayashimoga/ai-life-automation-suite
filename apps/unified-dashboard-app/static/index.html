@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Suite Dashboard</title>
+    <meta name="description" content="Unified AI Life Automation Suite Dashboard — manage habits, journal, vision intelligence, and screen time from one place.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="static/style.css">
+    <link rel="manifest" href="static/manifest.json">
+    <meta name="theme-color" content="#050b14">
+</head>
+<body>
+    <div class="bg-mesh"></div>
+
+    <!-- Global Sidebar Navigation -->
+    <nav class="sidebar" role="navigation" aria-label="Main navigation">
+        <div class="brand">
+            <div class="brand-icon">
+                <i class="fa-solid fa-bolt"></i>
+            </div>
+            <h1>AI Suite Core</h1>
+        </div>
+
+        <div class="nav-links">
+            <a href="#" class="nav-item active" data-target="http://localhost:8001">
+                <i class="fa-solid fa-book-journal-whills"></i>
+                Memory Journal
+            </a>
+            <a href="#" class="nav-item" data-target="http://localhost:8002">
+                <i class="fa-solid fa-shield-halved"></i>
+                Doomscroll Breaker
+            </a>
+            <a href="#" class="nav-item" data-target="http://localhost:8003">
+                <i class="fa-solid fa-eye"></i>
+                Visual Intelligence
+            </a>
+            <a href="#" class="nav-item" data-target="http://localhost:8004">
+                <i class="fa-solid fa-seedling"></i>
+                Micro-Habit Engine
+            </a>
+        </div>
+
+        <!-- Live Services Health Status -->
+        <div class="status-widget">
+            <div class="status-header">Services Telemetry</div>
+            <div class="status-item">
+                <span>Journal API</span>
+                <div class="status-indicator">
+                    <div class="dot" id="status-journal"></div>
+                </div>
+            </div>
+            <div class="status-item">
+                <span>Doomscroll API</span>
+                <div class="status-indicator">
+                    <div class="dot" id="status-doomscroll"></div>
+                </div>
+            </div>
+            <div class="status-item">
+                <span>Vision API</span>
+                <div class="status-indicator">
+                    <div class="dot" id="status-vision"></div>
+                </div>
+            </div>
+            <div class="status-item">
+                <span>Habit API</span>
+                <div class="status-indicator">
+                    <div class="dot" id="status-habit"></div>
+                </div>
+            </div>
+            
+            <a href="/api/v1/export" class="export-btn" download aria-label="Export all user data as ZIP">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+                Export All Data
+            </a>
+            <button id="voice-btn" class="export-btn" onclick="window.voiceEngine && window.voiceEngine.toggle()" aria-label="Toggle voice commands" style="margin-top:8px;background:rgba(99,102,241,0.2);">
+                <i class="fa-solid fa-microphone"></i>
+                🎤 Voice
+            </button>
+        </div>
+    </nav>
+
+    <!-- Content IFrame -->
+    <main class="main-content">
+        <div class="global-loader" id="loader">
+            <div class="spinner"></div>
+            <div class="loader-text">Initializing Gateway</div>
+        </div>
+        <iframe id="app-frame" class="app-frame" src="about:blank"></iframe>
+    </main>
+
+    <script src="static/app.js"></script>
+    <script src="static/voice.js"></script>
+</body>
+</html>

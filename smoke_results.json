@@ -1,0 +1,1 @@
+{"smoke_tests": {"memory-journal-app": "PASSED", "doomscroll-breaker-app": "PASSED", "visual-intelligence-app": "PASSED"}, "coverage": {"memory-journal-app": {"pass": "Failed", "cov": "N/A"}, "doomscroll-breaker-app": {"pass": "Failed", "cov": "N/A"}, "visual-intelligence-app": {"pass": "100%", "cov": "71%"}}}

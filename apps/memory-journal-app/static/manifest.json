@@ -1,0 +1,18 @@
+{
+    "name": "Memory Journal AI",
+    "short_name": "Journal",
+    "description": "Multi-Modal Sentimental Memory Database",
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#0b1120",
+    "theme_color": "#a855f7",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "https://cdn-icons-png.flaticon.com/512/3238/3238015.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any maskable"
+        }
+    ]
+}

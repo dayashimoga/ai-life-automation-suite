@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+httpx
+pydantic
+pyjwt
+passlib[bcrypt]
+pytest
+pytest-cov

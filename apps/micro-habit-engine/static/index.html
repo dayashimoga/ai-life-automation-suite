@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro-Habit Engine — Track Tiny Habits, Build Lasting Change</title>
+    <meta name="description" content="AI-powered micro-habit tracker with real-time feedback, strength scoring, and smart nudges.">
+    <link rel="manifest" href="/static/manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">🧬 <span>Micro-Habit Engine</span></div>
+            <button id="themeToggle" class="theme-btn" title="Toggle Theme">🌙</button>
+        </header>
+
+        <main>
+            <!-- Quick Log Section -->
+            <section class="card log-section">
+                <h2>⚡ Quick Log</h2>
+                <div class="habit-buttons">
+                    <button class="habit-btn water" onclick="logHabit('drink_water')">💧 Water</button>
+                    <button class="habit-btn stretch" onclick="logHabit('stretch')">🧘 Stretch</button>
+                    <button class="habit-btn walk" onclick="logHabit('walk')">🚶 Walk</button>
+                </div>
+                <div id="logFeedback" class="feedback"></div>
+            </section>
+
+            <!-- Scores Section -->
+            <section class="card scores-section">
+                <h2>📊 Habit Strength</h2>
+                <div id="scoresContainer" class="scores-grid"></div>
+            </section>
+
+            <!-- Insights Section -->
+            <section class="card insights-section">
+                <h2>🧠 AI Insights</h2>
+                <div id="insightsContainer" class="insights-list"></div>
+            </section>
+        </main>
+
+        <footer>
+            <p>AI Life Automation Suite — Micro-Habit Engine v1.0</p>
+        </footer>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
