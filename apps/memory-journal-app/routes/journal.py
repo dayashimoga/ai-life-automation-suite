@@ -149,3 +149,22 @@ async def semantic_search(query: str, top_k: int = 10):
         ],
         "total": len(results),
     }
+
+
+@router.get("/wellness")
+async def get_wellness_report():
+    """
+    Burnout & Wellness Analysis — runs sentiment analysis on recent journal
+    entries to produce a personalized wellbeing report with burnout risk score.
+    """
+    from services.sentiment import analyze_entries
+
+    all_entries = get_all_entries()
+    # Use the 20 most recent entries for the analysis window
+    recent = all_entries[-20:] if len(all_entries) > 20 else all_entries
+
+    report = analyze_entries(recent)
+    return {
+        "status": "ok",
+        **report,
+    }

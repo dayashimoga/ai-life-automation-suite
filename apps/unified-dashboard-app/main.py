@@ -10,6 +10,7 @@ import asyncio
 import json
 import zipfile
 import io
+import datetime
 
 app = FastAPI(title="Unified API Gateway Dashboard", version="1.0.0")
 
@@ -182,6 +183,121 @@ async def weekly_digest():
     return digest
 
 
+@app.get("/api/v1/intelligence")
+async def cross_app_intelligence():
+    """
+    The 'Deep Brain' — Cross-app AI intelligence layer.
+    Pulls live data from Habit Engine and Doomscroll Breaker to generate
+    real-time behavioral correlation insights.
+    """
+    habit_scores = []
+    screen_analytics = {}
+    journal_entries = []
+    insights = []
+
+    async with httpx.AsyncClient(timeout=3.0) as client:
+        # 1. Pull habit scores from Habit Engine
+        try:
+            r = await client.get(f"{SERVICES['habit']}/api/v1/habit/score")
+            if r.status_code == 200:
+                habit_scores = r.json()
+        except httpx.RequestError:
+            pass
+
+        # 2. Pull screen time analytics from Doomscroll
+        try:
+            r = await client.get(f"{SERVICES['doomscroll']}/api/v1/usage/analytics")
+            if r.status_code == 200:
+                screen_analytics = r.json()
+        except httpx.RequestError:
+            pass
+
+        # 3. Pull journal entries for burnout signals
+        try:
+            r = await client.get(f"{SERVICES['journal']}/api/v1/journal/timeline")
+            if r.status_code == 200:
+                data = r.json()
+                journal_entries = data.get("entries", [])
+        except httpx.RequestError:
+            pass
+
+    # ── Correlation Algorithm ──
+    avg_screen = screen_analytics.get("average_risk", 0)
+    doomscroll_sessions = screen_analytics.get("doomscroll_sessions", 0)
+    total_sessions = screen_analytics.get("total_sessions", 1)
+    doomscroll_ratio = doomscroll_sessions / max(total_sessions, 1)
+
+    for habit in habit_scores:
+        name = habit.get("habit_name", "").replace("_", " ").title()
+        streak = habit.get("streak_days", 0)
+        score = habit.get("decayed_score", 0)
+
+        # Insight: High screen time + failing habit → strong correlation warning
+        if score < 40 and doomscroll_ratio > 0.4:
+            insights.append({
+                "type": "screen_habit_conflict",
+                "severity": "high",
+                "insight": (
+                    f"📵 You tend to fail '{name}' on days with high screen time. "
+                    f"Your doomscroll ratio is {doomscroll_ratio:.0%} — try blocking distracting apps "
+                    f"30 minutes before your habit time."
+                ),
+                "confidence": round(min(0.95, 0.5 + doomscroll_ratio), 2),
+                "habit": name,
+            })
+        # Insight: Strong habit streak + low screen risk → reinforce the pattern
+        elif streak >= 5 and avg_screen < 0.3:
+            insights.append({
+                "type": "positive_reinforcement",
+                "severity": "low",
+                "insight": (
+                    f"🔥 Your {streak}-day streak on '{name}' correlates with lower screen risk scores "
+                    f"({avg_screen:.0%}). Your habits are shielding you from doomscrolling. Keep it up!"
+                ),
+                "confidence": round(min(0.95, 0.6 + streak * 0.04), 2),
+                "habit": name,
+            })
+        # Insight: Moderate habit + elevated screen risk → early warning
+        elif 40 <= score < 70 and avg_screen > 0.5:
+            insights.append({
+                "type": "early_warning",
+                "severity": "medium",
+                "insight": (
+                    f"⚠️ '{name}' is weakening (score: {score:.0f}). "
+                    f"Your screen time risk is elevated ({avg_screen:.0%}). "
+                    f"These two patterns together predict a full habit reset within 3 days."
+                ),
+                "confidence": 0.75,
+                "habit": name,
+            })
+
+    # Burnout signal from journal frequency
+    if len(journal_entries) == 0:
+        insights.append({
+            "type": "burnout_signal",
+            "severity": "medium",
+            "insight": (
+                "📔 You haven't journaled recently. Silence in your memory journal, "
+                "combined with active screen time, is an early burnout signal. "
+                "Write one sentence about today."
+            ),
+            "confidence": 0.65,
+            "habit": "journaling",
+        })
+
+    return {
+        "status": "ok",
+        "insights": insights,
+        "data_sources": {
+            "habits_analyzed": len(habit_scores),
+            "screen_sessions": total_sessions,
+            "journal_entries": len(journal_entries),
+            "doomscroll_ratio": round(doomscroll_ratio, 2),
+        },
+        "generated_at": datetime.datetime.utcnow().isoformat(),
+    }
+
+
 # Serve static frontend
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(static_dir):
@@ -190,3 +306,4 @@ if os.path.exists(static_dir):
     @app.get("/")
     async def serve_ui():
         return FileResponse(os.path.join(static_dir, "index.html"))
+

@@ -150,3 +150,51 @@ def test_auth_full_flow():
         "/api/v1/auth/me", headers={"Authorization": "Bearer invalidtoken"}
     )
     assert resp8.status_code == 401
+
+
+# ── Cross-App Intelligence Tests ──
+
+def test_intelligence_endpoint_no_services():
+    """Test that the intelligence endpoint returns a valid response even when
+    sibling services are offline (graceful degradation)."""
+    from unittest.mock import patch, AsyncMock
+    import httpx
+
+    mock_get = AsyncMock(side_effect=httpx.RequestError("offline", request=None))
+    with patch("httpx.AsyncClient.get", mock_get):
+        response = client.get("/api/v1/intelligence")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "ok"
+        assert "insights" in data
+        assert "data_sources" in data
+        assert "generated_at" in data
+
+
+def test_intelligence_endpoint_with_journal_entries():
+    """Test that the intelligence endpoint includes a burnout signal
+    when no journal entries are returned."""
+    from unittest.mock import patch, AsyncMock
+    import httpx
+
+    async def mock_get(url, **kwargs):
+        mock_r = AsyncMock()
+        mock_r.status_code = 200
+        # Habit: one weak habit
+        if "habit" in url:
+            mock_r.json.return_value = [{"habit_name": "drink_water", "streak_days": 0, "decayed_score": 10}]
+        # Doomscroll: high risk
+        elif "usage" in url:
+            mock_r.json.return_value = {"average_risk": 0.8, "total_sessions": 10, "doomscroll_sessions": 8}
+        # Journal: empty
+        elif "journal" in url:
+            mock_r.json.return_value = {"entries": []}
+        return mock_r
+
+    with patch("httpx.AsyncClient.get", side_effect=mock_get):
+        response = client.get("/api/v1/intelligence")
+        assert response.status_code == 200
+        data = response.json()
+        types = [i["type"] for i in data["insights"]]
+        # Expect either a screen/habit conflict or a burnout signal
+        assert any(t in types for t in ["screen_habit_conflict", "burnout_signal"])

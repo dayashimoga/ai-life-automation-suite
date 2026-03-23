@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "AI Life Suite",
+    "slug": "ai-life-suite",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0a0a1a"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ailifesuite.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0a0a1a"
+      },
+      "package": "com.ailifesuite.app"
+    },
+    "plugins": [
+      "expo-notifications",
+      "expo-background-fetch",
+      "expo-task-manager"
+    ],
+    "extra": {
+      "habitApiUrl": "http://localhost:8004",
+      "doomscrollApiUrl": "http://localhost:8002",
+      "journalApiUrl": "http://localhost:8001",
+      "visionApiUrl": "http://localhost:8003",
+      "dashboardApiUrl": "http://localhost:8005"
+    }
+  }
+}
