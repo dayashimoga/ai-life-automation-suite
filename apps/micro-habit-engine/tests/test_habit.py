@@ -155,3 +155,29 @@ def test_classify_strength():
     assert classify_strength(50) == "moderate"
     assert classify_strength(20) == "decaying"
     assert classify_strength(5) == "critical"
+
+
+def test_get_all_badges():
+    response = client.get("/api/v1/habit/badges")
+    assert response.status_code == 200
+    assert "earned" in response.json()
+
+
+def test_get_streak_card():
+    client.post("/api/v1/habit/log", json={"habit_name": "meditate"})
+    response = client.get("/api/v1/habit/streak/meditate")
+    assert response.status_code == 200
+    assert response.json()["habit_name"] == "meditate"
+
+
+def test_get_templates():
+    response = client.get("/api/v1/habit/templates")
+    assert response.status_code == 200
+    assert "templates" in response.json()
+
+
+def test_activate_template():
+    response = client.post("/api/v1/habit/templates/hydration/activate")
+    assert response.status_code == 200
+    assert response.json()["status"] == "activated"
+    assert response.json()["template"]["id"] == "hydration"

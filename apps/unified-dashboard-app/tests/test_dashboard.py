@@ -205,3 +205,24 @@ def test_intelligence_endpoint_with_journal_entries():
         types = [i["type"] for i in data["insights"]]
         # Expect either a screen/habit conflict or a burnout signal
         assert any(t in types for t in ["screen_habit_conflict", "burnout_signal"])
+
+
+def test_weekly_digest_unavailable():
+    from unittest.mock import patch
+    import httpx
+
+    with patch(
+        "httpx.AsyncClient.get", side_effect=httpx.RequestError("offline", request=None)
+    ):
+        response = client.get("/api/v1/digest")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["services"]["doomscroll"]["status"] == "unavailable"
+
+
+def test_notification_stream_disconnect():
+    with client.stream("GET", "/api/v1/notifications/stream") as _:
+        # Just opening and closing the stream to trigger the finally/CancelledError block
+        pass
+    # We can't easily check the internal list from here without exposing it,
+    # but the line is executed in the finally block.

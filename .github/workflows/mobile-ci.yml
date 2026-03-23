@@ -3,9 +3,9 @@ name: Mobile App CI/CD
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'mobile/**'
-      - '.github/workflows/mobile-ci.yml'
+    # paths:
+    #   - 'mobile/**'
+    #   - '.github/workflows/mobile-ci.yml'
   pull_request:
     branches: [ main ]
     paths:
@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
-          cache-dependency-path: './mobile/package-lock.json'
+          cache-dependency-path: './mobile/package.json'
       - name: Install dependencies
         run: npm install
       - name: Run Jest Tests
@@ -46,7 +46,7 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
-          cache-dependency-path: './mobile/package-lock.json'
+          cache-dependency-path: './mobile/package.json'
 
       - name: Setup Java
         uses: actions/setup-java@v3

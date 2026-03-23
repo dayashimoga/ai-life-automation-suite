@@ -6,8 +6,7 @@ class Settings(BaseSettings):
     api_prefix: str = "/api/v1"
     usage_threshold_minutes: int = 60
 
-    class Config:
-        env_file = ".env"
+    model_config = {"env_file": ".env"}
 
 
 settings = Settings()

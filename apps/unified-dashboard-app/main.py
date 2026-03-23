@@ -69,7 +69,7 @@ async def push_notification(payload: NotificationPayload):
     dead_clients = set()
     for client_queue in clients:
         try:
-            client_queue.put_nowait(payload.dict())
+            client_queue.put_nowait(payload.model_dump())
         except asyncio.QueueFull:
             dead_clients.add(client_queue)
 

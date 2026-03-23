@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 from main import app
 from routes.usage import active_sessions
 from services.tracker import tracker
+from unittest.mock import MagicMock
 
 client = TestClient(app)
 
@@ -139,3 +140,21 @@ def test_predictive_ai_empty_db():
         data = predictor.get_usage_analytics()
         assert data["total_sessions"] == 0
         assert data["doomscroll_sessions"] == 0
+
+
+def test_weekly_report():
+    from datetime import datetime, timedelta
+    tracker.usage_records.append(
+        MagicMock(app_name="social", minutes_used=30, timestamp=datetime.utcnow())
+    )
+    response = client.get("/api/v1/usage/report/weekly")
+    assert response.status_code == 200
+    assert response.json()["total_minutes"] >= 30
+
+
+def test_pomodoro():
+    response = client.post("/api/v1/usage/pomodoro", params={"cycles": 2})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total_cycles"] == 2
+    assert len(data["sessions"]) == 2
