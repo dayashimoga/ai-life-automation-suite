@@ -52,11 +52,14 @@ apps = [
         "port": 8003,
         "env": {**os.environ.copy(), "EVENT_THRESHOLD": "1"},
     },  # set threshold to 1 so mock detection triggers it
+    {"name": "micro-habit-engine", "port": 8004, "env": os.environ.copy()},
+    {"name": "unified-dashboard-app", "port": 8005, "env": os.environ.copy()},
 ]
 
 processes = []
 for app in apps:
     app_dir = f"apps/{app['name']}"
+
     venv_dir = os.path.join(app_dir, ".venv_tmp")
     py_bin = os.path.join(venv_dir, "Scripts", "python.exe")
     
@@ -144,11 +147,11 @@ try:
         print("   Event type:", events[0]["event_type"], "-", events[0]["description"])
 
     print("\n=== DEMO SUCCESSFUL ===")
+    print("SERVERS RUNNING INDEFINITELY on Ports 8001-8005. Waiting for browser demo...")
+    while True:
+        time.sleep(100)
 
 except Exception as e:
     print(f"\nDemo failed: {e}")
-
-finally:
-    print("Shutting down apps...")
     for p in processes:
         p.terminate()

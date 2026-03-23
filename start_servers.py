@@ -17,13 +17,11 @@ apps_config = [
     ("doomscroll-breaker-app", 8002, os.environ.copy()),
     ("visual-intelligence-app", 8003, dict(os.environ, EVENT_THRESHOLD="3")),
     ("micro-habit-engine", 8004, os.environ.copy()),
+    ("unified-dashboard-app", 8005, os.environ.copy()),
 ]
 
-# To incorporate "unified-dashboard-app" into the running logic,
-# you would need to add it to apps_config with its environment variables,
-# or refactor the loop to use the APPS dictionary and define env_dict separately.
-# For now, the loop still uses apps_config as per the original code.
 for name, port, env_dict in apps_config:
+
     app_dir = os.path.join(os.getcwd(), f"apps/{name}")
     py_bin = os.path.join(app_dir, ".venv_tmp", "Scripts", "python.exe")
     if not os.path.exists(py_bin):

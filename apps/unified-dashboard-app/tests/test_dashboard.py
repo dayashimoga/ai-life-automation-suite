@@ -174,11 +174,12 @@ def test_intelligence_endpoint_no_services():
 def test_intelligence_endpoint_with_journal_entries():
     """Test that the intelligence endpoint includes a burnout signal
     when no journal entries are returned."""
-    from unittest.mock import patch, AsyncMock
+    from unittest.mock import patch, AsyncMock, MagicMock
     import httpx
 
     async def mock_get(url, **kwargs):
-        mock_r = AsyncMock()
+        # The response object returned by get() is NOT async itself
+        mock_r = MagicMock()
         mock_r.status_code = 200
         # Habit: one weak habit
         if "habit" in url:
