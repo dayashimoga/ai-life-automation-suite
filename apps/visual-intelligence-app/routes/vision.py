@@ -12,6 +12,7 @@ from services.event_engine import event_engine
 from core.database import init_db, save_analysis, get_history
 from services.identity import init_identity_db, analyze_identities
 from services.spatial_analytics import spatial_analytics_global
+from services.webhooks import send_webhook_alert
 import base64
 import uuid
 
@@ -243,3 +244,26 @@ async def configure_zone(zone: dict):
 @router.get("/zones")
 async def get_zones():
     return monitoring_zones
+
+
+@router.post("/webhook/configure")
+async def configure_webhook(config: dict):
+    """Configure a webhook URL for alert notifications."""
+    import services.webhooks as wh
+
+    url = config.get("url", "")
+    if url:
+        wh.WEBHOOK_URL = url
+        return {"status": "configured", "webhook_url": url}
+    return {"status": "error", "message": "No URL provided"}
+
+
+@router.post("/webhook/test")
+async def test_webhook():
+    """Send a test webhook notification."""
+    result = await send_webhook_alert(
+        event_type="test_alert",
+        description="This is a test notification from Visual Intelligence.",
+        event_id="test-" + str(uuid.uuid4())[:8],
+    )
+    return result

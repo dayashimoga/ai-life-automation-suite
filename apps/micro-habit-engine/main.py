@@ -1,14 +1,24 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from core.database import init_db
 from routes.habit import router
 import os
 
 app = FastAPI(title="Micro-Habit Engine", version="1.0.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 init_db()
 
-app.include_router(router, prefix="/habit")
+app.include_router(router, prefix="/api/v1/habit")
 
 
 @app.get("/health")

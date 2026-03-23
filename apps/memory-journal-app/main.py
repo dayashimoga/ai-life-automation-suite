@@ -1,10 +1,22 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 import os
 from routes.journal import router as journal_router
 from core.config import settings
+from core.database import init_db
 
 app = FastAPI(title=settings.app_name)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+init_db()
 
 app.include_router(journal_router, prefix=settings.api_prefix + "/journal")
 

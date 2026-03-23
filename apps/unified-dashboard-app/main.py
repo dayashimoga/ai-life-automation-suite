@@ -24,12 +24,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Services map
+# Services map — configurable via environment variables for cloud deployment
 SERVICES = {
-    "journal": "http://localhost:8001",
-    "doomscroll": "http://localhost:8002",
-    "vision": "http://localhost:8003",
-    "habit": "http://localhost:8004",
+    "journal": os.environ.get("JOURNAL_API_URL", "http://localhost:8001"),
+    "doomscroll": os.environ.get("DOOMSCROLL_API_URL", "http://localhost:8002"),
+    "vision": os.environ.get("VISION_API_URL", "http://localhost:8003"),
+    "habit": os.environ.get("HABIT_API_URL", "http://localhost:8004"),
 }
 
 
@@ -128,6 +128,58 @@ async def export_data():
             "Content-Disposition": "attachment; filename=ai_life_suite_export.zip"
         },
     )
+
+
+@app.get("/api/v1/digest")
+async def weekly_digest():
+    """Weekly activity digest aggregating data from all microservices."""
+    digest = {
+        "period": "Last 7 days",
+        "services": {},
+        "highlights": [],
+    }
+
+    async with httpx.AsyncClient(timeout=3.0) as client:
+        # Doomscroll weekly report
+        try:
+            r = await client.get(f"{SERVICES['doomscroll']}/api/v1/usage/report/weekly")
+            if r.status_code == 200:
+                digest["services"]["doomscroll"] = r.json()
+        except httpx.RequestError:
+            digest["services"]["doomscroll"] = {"status": "unavailable"}
+
+        # Habit scores
+        try:
+            r = await client.get(f"{SERVICES['habit']}/api/v1/habit/score")
+            if r.status_code == 200:
+                scores = r.json()
+                digest["services"]["habits"] = {
+                    "total_habits": len(scores),
+                    "scores": scores[:5],
+                }
+        except httpx.RequestError:
+            digest["services"]["habits"] = {"status": "unavailable"}
+
+        # Journal timeline
+        try:
+            r = await client.get(f"{SERVICES['journal']}/api/v1/journal/timeline")
+            if r.status_code == 200:
+                data = r.json()
+                digest["services"]["journal"] = {
+                    "total_entries": data.get("total", 0),
+                }
+        except httpx.RequestError:
+            digest["services"]["journal"] = {"status": "unavailable"}
+
+        # Vision events
+        try:
+            r = await client.get(f"{SERVICES['vision']}/api/v1/vision/dashboard")
+            if r.status_code == 200:
+                digest["services"]["vision"] = r.json()
+        except httpx.RequestError:
+            digest["services"]["vision"] = {"status": "unavailable"}
+
+    return digest
 
 
 # Serve static frontend

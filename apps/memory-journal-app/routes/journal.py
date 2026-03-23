@@ -2,6 +2,12 @@ from fastapi import APIRouter, UploadFile, File
 from models.journal import JournalEntry, JournalResponse
 from services.captioning import captioning_service
 from services.search import search_engine
+from core.database import (
+    save_entry,
+    get_all_entries,
+    search_entries,
+    get_entries_on_this_day,
+)
 from typing import List
 from datetime import datetime
 from uuid import uuid4
@@ -13,8 +19,7 @@ import base64
 
 router = APIRouter()
 
-# In-memory storage for mockup purposes
-db_entries: List[JournalEntry] = []
+VISION_API_URL = os.environ.get("VISION_API_URL", "http://127.0.0.1:5002")
 
 
 @router.post("/upload", response_model=JournalEntry)
@@ -34,7 +39,7 @@ async def upload_image(file: UploadFile = File(...)):
         timestamp=datetime.utcnow(),
     )
 
-    db_entries.append(entry)
+    save_entry(entry.model_dump(mode="json"))
     return entry
 
 
@@ -68,12 +73,12 @@ async def process_video_entry(file: UploadFile = File(...)):
         frame_bytes = buffer.tobytes()
         _ = base64.b64encode(frame_bytes).decode("utf-8")
 
-        # Microservice Bridge: Query Visual Intelligence Engine natively
+        # Microservice Bridge: Query Visual Intelligence Engine
         try:
             async with httpx.AsyncClient() as client:
                 files = {"file": ("keyframe.jpg", frame_bytes, "image/jpeg")}
                 resp = await client.post(
-                    "http://127.0.0.1:5002/api/v1/vision/process",
+                    f"{VISION_API_URL}/api/v1/vision/process",
                     files=files,
                     timeout=10.0,
                 )
@@ -84,52 +89,56 @@ async def process_video_entry(file: UploadFile = File(...)):
         except Exception as e:
             print(f"Vision Bridge Error: {e}")
 
-    # Forward to existing architecture natively
-    # Create a JournalEntry object and append it to db_entries
     entry = JournalEntry(
         id=str(uuid4()),
-        filename=file.filename
-        or "video_keyframe.jpg",  # Use original filename or a default
+        filename=file.filename or "video_keyframe.jpg",
         caption=text_content,
-        tags=list(set(tags)),  # Ensure unique tags
-        mock_location="Unknown (Video Analysis)",  # Mock location for video
+        tags=list(set(tags)),
+        mock_location="Unknown (Video Analysis)",
         timestamp=datetime.utcnow(),
     )
-    db_entries.append(entry)
+    save_entry(entry.model_dump(mode="json"))
     return entry
 
 
 @router.get("/timeline", response_model=JournalResponse)
 async def get_timeline():
-    # Return entries sorted by timestamp descending
-    sorted_entries = sorted(db_entries, key=lambda x: x.timestamp, reverse=True)
-    return JournalResponse(entries=sorted_entries, total=len(sorted_entries))
+    entries_data = get_all_entries()
+    entries = [JournalEntry(**e) for e in entries_data]
+    return JournalResponse(entries=entries, total=len(entries))
 
 
 @router.get("/search", response_model=JournalResponse)
 async def search_journal(query: str):
-    results = [
-        e
-        for e in db_entries
-        if query.lower() in e.caption.lower()
-        or any(query.lower() in t.lower() for t in e.tags)
-    ]
+    results_data = search_entries(query)
+    results = [JournalEntry(**e) for e in results_data]
     return JournalResponse(entries=results, total=len(results))
+
+
+@router.get("/memories/today")
+async def on_this_day():
+    """Return journal entries from the same date in previous years — nostalgia feature."""
+    entries_data = get_entries_on_this_day()
+    return {
+        "date": datetime.utcnow().strftime("%B %d"),
+        "memories": entries_data,
+        "total": len(entries_data),
+    }
 
 
 @router.get("/semantic_search")
 async def semantic_search(query: str, top_k: int = 10):
     """Natural language semantic search across all journal entries."""
-    # Re-index on each search (lightweight for in-memory stores)
+    all_entries = get_all_entries()
     docs = [
         {
-            "id": e.id,
-            "caption": e.caption,
-            "tags": e.tags,
-            "filename": e.filename,
-            "timestamp": str(e.timestamp),
+            "id": e["id"],
+            "caption": e["caption"],
+            "tags": e["tags"],
+            "filename": e["filename"],
+            "timestamp": e["timestamp"],
         }
-        for e in db_entries
+        for e in all_entries
     ]
     search_engine.index_documents(docs)
     results = search_engine.search(query, top_k=top_k)
