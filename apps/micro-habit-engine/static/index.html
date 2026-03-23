@@ -241,6 +241,20 @@
       setTimeout(loadHabits, 300);
     }
 
+    // ── Viral Sharing ──
+    function shareStreak() {
+      const best = document.getElementById('topStreak').textContent;
+      const badges = document.getElementById('totalBadges').textContent;
+      const text = `🔥 I'm on a ${best}-day streak on the AI Micro-Habit Engine! 🏆 I've earned ${badges} badges. Can you beat me? #AILife #Habits #MicroHabits`;
+      
+      if (navigator.share) {
+        navigator.share({ title: 'My Habit Progress', text: text, url: window.location.href });
+      } else {
+        navigator.clipboard.writeText(text);
+        toast('📋 Streak copied to clipboard!');
+      }
+    }
+
     // ── Load Insights ──
     async function loadInsights() {
       const ins = await api('/insights');
