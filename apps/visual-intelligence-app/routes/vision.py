@@ -134,7 +134,14 @@ async def process_frame(file: UploadFile = File(...)):
 
     # Standard Image Pipeline
     detections, raw_img = detection_module.detect_and_draw(data)
+    if raw_img is None:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="Invalid image data")
+
     annotated_img = spatial_analytics_global.process_frame(raw_img, detections)
+    
+    if annotated_img is None:
+        annotated_img = raw_img
 
     _, buffer2 = cv2.imencode(".jpg", annotated_img)
     annotated_b64 = base64.b64encode(buffer2).decode("utf-8")

@@ -34,7 +34,7 @@ def test_health_check():
 
 # ---------- Log Habit ----------
 def test_log_habit():
-    r = client.post("/habit/log", json={"habit_name": "drink_water"})
+    r = client.post("/api/v1/habit/log", json={"habit_name": "drink_water"})
     assert r.status_code == 200
     data = r.json()
     assert data["status"] == "logged"
@@ -43,28 +43,28 @@ def test_log_habit():
 
 def test_log_habit_with_timestamp():
     ts = "2026-03-22T10:00:00"
-    r = client.post("/habit/log", json={"habit_name": "stretch", "timestamp": ts})
+    r = client.post("/api/v1/habit/log", json={"habit_name": "stretch", "timestamp": ts})
     assert r.status_code == 200
     assert r.json()["habit"] == "stretch"
 
 
 def test_log_multiple_habits():
     for name in ["walk", "walk", "drink_water"]:
-        r = client.post("/habit/log", json={"habit_name": name})
+        r = client.post("/api/v1/habit/log", json={"habit_name": name})
         assert r.status_code == 200
 
 
 # ---------- Scores ----------
 def test_score_empty():
-    r = client.get("/habit/score")
+    r = client.get("/api/v1/habit/score")
     assert r.status_code == 200
     assert r.json() == []
 
 
 def test_score_after_logging():
-    client.post("/habit/log", json={"habit_name": "walk"})
-    client.post("/habit/log", json={"habit_name": "walk"})
-    r = client.get("/habit/score")
+    client.post("/api/v1/habit/log", json={"habit_name": "walk"})
+    client.post("/api/v1/habit/log", json={"habit_name": "walk"})
+    r = client.get("/api/v1/habit/score")
     assert r.status_code == 200
     scores = r.json()
     assert len(scores) == 1
@@ -79,7 +79,7 @@ def test_score_decays():
     old_ts = (datetime.utcnow() - timedelta(hours=10)).isoformat()
     log_habit("stretch", old_ts)
 
-    r = client.get("/habit/score")
+    r = client.get("/api/v1/habit/score")
     scores = r.json()
     s = scores[0]
     assert s["raw_score"] == 10
@@ -88,14 +88,14 @@ def test_score_decays():
 
 # ---------- Insights ----------
 def test_insights_empty():
-    r = client.get("/habit/insights")
+    r = client.get("/api/v1/habit/insights")
     assert r.status_code == 200
     assert r.json() == []
 
 
 def test_insights_after_logging():
-    client.post("/habit/log", json={"habit_name": "drink_water"})
-    r = client.get("/habit/insights")
+    client.post("/api/v1/habit/log", json={"habit_name": "drink_water"})
+    r = client.get("/api/v1/habit/insights")
     insights = r.json()
     assert len(insights) == 1
     assert insights[0]["habit_name"] == "drink_water"
@@ -110,7 +110,7 @@ def test_insights_nudge_for_decayed():
     old_ts = (datetime.utcnow() - timedelta(hours=48)).isoformat()
     log_habit("walk", old_ts)
 
-    r = client.get("/habit/insights")
+    r = client.get("/api/v1/habit/insights")
     insights = r.json()
     assert len(insights) == 1
     assert insights[0]["status"] in ("decaying", "critical")

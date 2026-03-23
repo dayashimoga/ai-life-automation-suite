@@ -57,7 +57,15 @@ apps = [
 processes = []
 for app in apps:
     app_dir = f"apps/{app['name']}"
-    py_bin = os.path.join(app_dir, ".venv_tmp", "Scripts", "python.exe")
+    venv_dir = os.path.join(app_dir, ".venv_tmp")
+    py_bin = os.path.join(venv_dir, "Scripts", "python.exe")
+    
+    if not os.path.exists(py_bin):
+        print(f"Creating venv for {app['name']}...")
+        subprocess.run(["python", "-m", "venv", ".venv_tmp"], cwd=app_dir)
+        print(f"Installing requirements for {app['name']}...")
+        subprocess.run([py_bin, "-m", "pip", "install", "-q", "-r", "requirements.txt"], cwd=app_dir)
+        
     p = subprocess.Popen(
         [py_bin, "-m", "uvicorn", "main:app", "--port", str(app["port"])],
         cwd=app_dir,
@@ -65,42 +73,43 @@ for app in apps:
     )
     processes.append(p)
 
-time.sleep(6)  # wait for boot
+time.sleep(20)  # wait for boot
 print("\n=== DEMO TIME ===\n")
 
 try:
     print("1) Testing Memory Journal App (Port 8001)")
     print("-> Uploading 'vacation.jpg'...")
     res1 = post_multipart(
-        "http://127.0.0.1:8001/api/v1/upload", "vacation.jpg", b"fake_image_bytes"
+        "http://127.0.0.1:8001/api/v1/journal/upload", "vacation.jpg", b"fake_image_bytes"
     )
     print("   Upload Response:", json.dumps(res1, indent=2))
 
     print("-> Fetching timeline...")
-    res2 = get_json("http://127.0.0.1:8001/api/v1/timeline")
+    res2 = get_json("http://127.0.0.1:8001/api/v1/journal/timeline")
     print("   Timeline Total:", res2["total"])
-    print("   Timeline First Entry Caption:", res2["entries"][0]["caption"])
+    if res2["total"] > 0:
+        print("   Timeline First Entry Caption:", res2["entries"][0]["caption"])
 
     print("\n2) Testing Doomscroll Breaker App (Port 8002)")
     print("-> Logging 30 mins usage on Instagram...")
     post_json(
-        "http://127.0.0.1:8002/api/v1/track", {"app_name": "Instagram", "minutes": 30}
+        "http://127.0.0.1:8002/api/v1/usage/track", {"app_name": "Instagram", "minutes": 30}
     )
 
     print("-> Logging 40 mins usage on Instagram (Triggers Alert)...")
     post_json(
-        "http://127.0.0.1:8002/api/v1/track", {"app_name": "Instagram", "minutes": 40}
+        "http://127.0.0.1:8002/api/v1/usage/track", {"app_name": "Instagram", "minutes": 40}
     )
 
     print("-> Fetching alerts...")
-    alerts = get_json("http://127.0.0.1:8002/api/v1/alerts")
+    alerts = get_json("http://127.0.0.1:8002/api/v1/usage/alerts")
     print("   Alerts count:", len(alerts))
     if alerts:
         print("   Alert message:", alerts[0]["message"])
 
     print("-> Starting Focus Session blocking Instagram...")
     res_focus = post_json(
-        "http://127.0.0.1:8002/api/v1/focus",
+        "http://127.0.0.1:8002/api/v1/usage/focus",
         {"duration_minutes": 60, "app_to_block": "Instagram"},
     )
     print(
@@ -112,19 +121,24 @@ try:
 
     print("\n3) Testing Visual Intelligence App (Port 8003)")
     print("-> Processing CCTV Frame...")
+    img_data = b"fake_frame_bytes"
+    if os.path.exists("busy_street.jpg"):
+        with open("busy_street.jpg", "rb") as f:
+            img_data = f.read()
+
     res_cv = post_multipart(
-        "http://127.0.0.1:8003/api/v1/process", "frame.jpg", b"fake_frame_bytes"
+        "http://127.0.0.1:8003/api/v1/vision/process", "frame.jpg", img_data
     )
     print(
         "   Counts:",
-        res_cv["people_count"],
+        res_cv["counts"].get("person", 0),
         "people,",
-        res_cv["vehicle_count"],
+        res_cv["counts"].get("vehicle", 0),
         "vehicles",
     )
 
     print("-> Checking for Queue Detection Events (Threshold=1)...")
-    events = get_json("http://127.0.0.1:8003/api/v1/events")
+    events = get_json("http://127.0.0.1:8003/api/v1/vision/events")
     print("   Events count:", len(events))
     if events:
         print("   Event type:", events[0]["event_type"], "-", events[0]["description"])

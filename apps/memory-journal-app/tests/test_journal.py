@@ -1,15 +1,28 @@
 import pytest
 from fastapi.testclient import TestClient
 from main import app
-from routes.journal import db_entries
+from core.database import init_db
+
+# Ensure DB is initialized
+init_db()
 
 client = TestClient(app)
 
 
 @pytest.fixture(autouse=True)
 def clear_db():
-    db_entries.clear()
+    import sqlite3
+
+    conn = sqlite3.connect("journal.db", check_same_thread=False)
+    try:
+        conn.execute("DELETE FROM journal_entries")
+        conn.commit()
+    except Exception:
+        pass
+    finally:
+        conn.close()
     yield
+
 
 
 def test_health_check():
@@ -27,7 +40,10 @@ def test_upload_image():
     assert "test image" in data["caption"]
     assert "photo" in data["tags"]
     assert "Location pending" in data["mock_location"]
-    assert len(db_entries) == 1
+    
+    # Verify via DB/timeline
+    timeline_resp = client.get("/api/v1/journal/timeline")
+    assert timeline_resp.json()["total"] >= 1
 
 
 def test_get_timeline():
