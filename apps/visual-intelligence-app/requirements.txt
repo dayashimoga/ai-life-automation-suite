@@ -11,3 +11,5 @@ pytest
 pytest-cov
 
 httpx
+lapx
+scipy
