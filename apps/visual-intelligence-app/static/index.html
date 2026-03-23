@@ -1,86 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#1d2b45">
-    <link rel="manifest" href="manifest.json">
-    <title>Visual Intelligence</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Real-time AI vision analytics. Detect people, vehicles, monitor zones, and receive security alerts.">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Visual Intelligence — AI Security & Analytics</title>
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="stylesheet" href="/static/design-system.css">
+  <style>
+    :root { --accent-gradient: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%); }
+    .upload-zone { border: 2px dashed var(--glass-border); border-radius: var(--radius-lg);
+      padding: 32px 20px; text-align: center; cursor: pointer; transition: var(--transition);
+      background: var(--bg-card); }
+    .upload-zone:hover { border-color: #06b6d4; background: rgba(6,182,212,0.05); }
+    .result-img { width: 100%; border-radius: var(--radius-md); margin-bottom: 12px; }
+    .event-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .event-item:last-child { border: none; }
+    .event-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+    .event-dot.high { background: var(--danger); }
+    .event-dot.medium { background: var(--warning); }
+    .live-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
+      background: rgba(248,113,113,0.15); color: var(--danger); border-radius: 50px;
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
+    .live-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--danger); animation: pulse 1.5s ease infinite; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+  </style>
 </head>
 <body>
-    <div class="background-grid"></div>
-
-    <nav class="glass-nav">
-        <h1>👁️ Visual Intelligence Engine</h1>
-        <button id="theme-toggle" class="btn-icon">🌘</button>
-    </nav>
-
-    <main class="container">
-        <section class="upload-section glass-panel">
-            <h2>Process Frame</h2>
-            <div class="camera-controls" style="display:flex; gap:10px; margin-bottom: 1rem;">
-                <button id="start-camera" class="btn-primary" style="flex:1;">Start Live Camera</button>
-                <button id="reset-workflow" class="btn-secondary hidden" style="flex:1;">Reset Workflow</button>
-            </div>
-            <video id="webcam-video" autoplay playsinline class="hidden" style="width:100%; border-radius:10px; margin-bottom:1rem; border: 1px solid rgba(255,255,255,0.1);"></video>
-            <canvas id="camera-canvas" class="hidden"></canvas>
-            
-            <div id="dropzone" class="dropzone">
-                <p>Upload an image for YOLOv8 real-time segmentation</p>
-                <input type="file" id="file-input" accept="image/*,video/mp4" hidden>
-            </div>
-            
-            <div id="loading" class="hidden loading-pulse">Processing via Neural Network...</div>
-            
-            <div id="results" class="results-grid hidden">
-                <div class="result-img">
-                    <h3>Input Frame</h3>
-                    <img id="raw-image" src="" alt="Raw Input">
-                </div>
-                <div class="result-img">
-                    <h3>Annotated Frame</h3>
-                    <img id="annotated-image" src="" alt="Annotated Output">
-                </div>
-            </div>
-        </section>
-
-        <section class="data-section">
-            <div class="counts-panel glass-panel">
-                <h2>Live Detection Array</h2>
-                <div id="counts-container" class="counts-container">
-                    <!-- Counts injected here -->
-                    <p style="color:var(--text-muted);">Awaiting telemetry...</p>
-                </div>
-            </div>
-            
-            <div class="events-panel glass-panel">
-                <div class="events-header" style="display:flex; justify-content:space-between; align-items:center;">
-                    <h2 style="margin:0;">Live Anomaly Telemetry</h2>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <button id="view-history" class="btn-secondary" style="font-size:0.8rem; padding: 4px 10px;">View SQLite History</button>
-                        <div class="pulse-indicator" style="width: 10px; height: 10px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 10px #00ff88; animation: pulse 2s infinite;"></div>
-                    </div>
-                </div>
-                <div id="events-container" class="events-container">
-                    <!-- Events injected here -->
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- History Modal -->
-    <div id="history-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(11, 17, 32, 0.9); z-index:999; display:flex; justify-content:center; align-items:center;">
-        <div class="glass-panel" style="width:90%; max-width:800px; max-height:80vh; overflow-y:auto; padding:2rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                <h2 style="margin:0;">Historical SQLite Analysis</h2>
-                <button id="close-history" class="btn-primary" style="background:#ef4444;">Close</button>
-            </div>
-            <div id="history-content" style="color:#aab4cc;">Loading...</div>
-        </div>
+  <div class="container">
+    <div class="header fade-in">
+      <div class="emoji">👁️</div>
+      <h1 style="background:linear-gradient(135deg,#06b6d4,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Visual Intelligence</h1>
+      <p>AI-powered security & spatial analytics</p>
     </div>
 
-    <script src="app.js"></script>
+    <div class="stat-grid fade-in fade-in-delay-1">
+      <div class="stat-card">
+        <span class="value" style="color:#06b6d4" id="personCount">0</span>
+        <span class="label">People</span>
+      </div>
+      <div class="stat-card">
+        <span class="value text-warning" id="vehicleCount">0</span>
+        <span class="label">Vehicles</span>
+      </div>
+      <div class="stat-card">
+        <span class="value text-danger" id="eventCount">0</span>
+        <span class="label">Events</span>
+      </div>
+      <div class="stat-card">
+        <span class="value text-success" id="zoneCount">0</span>
+        <span class="label">Zones</span>
+      </div>
+    </div>
+
+    <!-- Tab: Analyze -->
+    <div class="tab-content active" id="tab-analyze">
+      <div class="card fade-in fade-in-delay-2">
+        <div class="card-header">
+          <h3>📷 Analyze Frame</h3>
+          <span class="live-badge">LIVE</span>
+        </div>
+        <div class="upload-zone" onclick="document.getElementById('frameInput').click()">
+          <div class="emoji">🎥</div>
+          <p style="margin-top:8px;color:var(--text-secondary)">Upload a CCTV frame or photo</p>
+          <input type="file" id="frameInput" accept="image/*" onchange="analyzeFrame(this)">
+        </div>
+      </div>
+
+      <div class="card" id="resultCard" style="display:none">
+        <div class="card-header"><h3>📊 Detection Results</h3></div>
+        <img id="resultImg" class="result-img" alt="Annotated frame">
+        <div id="detectionCounts"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Dashboard -->
+    <div class="tab-content" id="tab-dashboard">
+      <div class="card">
+        <div class="card-header"><h3>🛡️ Security Dashboard</h3></div>
+        <div id="dashboardContent">
+          <div class="empty-state"><div class="emoji">📊</div><p>Process frames to populate the dashboard</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Events -->
+    <div class="tab-content" id="tab-events">
+      <div class="card">
+        <div class="card-header"><h3>🚨 Event Timeline</h3></div>
+        <div id="eventsList">
+          <div class="empty-state"><div class="emoji">🔔</div><p>No events detected yet</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="tab-analyze"><span class="nav-icon">📷</span>Analyze</button>
+    <button class="nav-item" data-tab="tab-dashboard"><span class="nav-icon">🛡️</span>Dashboard</button>
+    <button class="nav-item" data-tab="tab-events"><span class="nav-icon">🚨</span>Events</button>
+  </nav>
+
+  <script>
+    const API = '/api/v1/vision';
+
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        btn.classList.add('active');
+        if (btn.dataset.tab === 'tab-dashboard') loadDashboard();
+        if (btn.dataset.tab === 'tab-events') loadEvents();
+      });
+    });
+
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    async function analyzeFrame(input) {
+      if (!input.files[0]) return;
+      const fd = new FormData();
+      fd.append('file', input.files[0]);
+      toast('🔍 Analyzing...');
+      const res = await fetch(API + '/process', { method:'POST', body:fd });
+      const data = await res.json();
+      const people = data.counts?.person || 0;
+      const vehicles = data.counts?.vehicle || data.counts?.car || 0;
+      document.getElementById('personCount').textContent = people;
+      document.getElementById('vehicleCount').textContent = vehicles;
+      document.getElementById('resultCard').style.display = 'block';
+      if (data.annotated_image_base64) {
+        document.getElementById('resultImg').src = 'data:image/jpeg;base64,' + data.annotated_image_base64;
+      }
+      document.getElementById('detectionCounts').innerHTML = Object.entries(data.counts||{}).map(([k,v]) =>
+        `<div class="list-item">
+          <div class="icon" style="background:rgba(6,182,212,0.1)">${k === 'person' ? '👤' : '🚗'}</div>
+          <div class="info"><div class="title">${k}</div></div>
+          <div class="action" style="color:#06b6d4">${v}</div>
+        </div>`
+      ).join('');
+      toast(`✅ Detected ${people} people, ${vehicles} vehicles`);
+      loadEvents();
+    }
+
+    async function loadEvents() {
+      const res = await fetch(API + '/events');
+      const events = await res.json();
+      document.getElementById('eventCount').textContent = events.length;
+      if (!events.length) return;
+      document.getElementById('eventsList').innerHTML = events.slice(-10).reverse().map(e =>
+        `<div class="event-item">
+          <div class="event-dot ${e.event_type.includes('unauthorized') ? 'high' : 'medium'}"></div>
+          <div>
+            <div style="font-weight:600;font-size:0.85rem">${e.event_type.replace(/_/g,' ')}</div>
+            <div style="font-size:0.75rem;color:var(--text-secondary)">${e.description}</div>
+          </div>
+        </div>`
+      ).join('');
+    }
+
+    async function loadDashboard() {
+      try {
+        const res = await fetch(API + '/dashboard');
+        const d = await res.json();
+        document.getElementById('zoneCount').textContent = d.active_zones || 0;
+        document.getElementById('dashboardContent').innerHTML = `
+          <div class="stat-grid" style="margin-bottom:16px">
+            <div class="stat-card"><span class="value" style="color:#06b6d4">${d.total_analyses}</span><span class="label">Analyses</span></div>
+            <div class="stat-card"><span class="value text-success">${d.live_connections}</span><span class="label">Live</span></div>
+          </div>
+          <h3 style="margin-bottom:8px;font-size:0.9rem">Recent Alerts</h3>
+          ${(d.alert_timeline||[]).slice(-5).map(a =>
+            `<div class="event-item">
+              <div class="event-dot ${a.severity === 'high' ? 'high' : 'medium'}"></div>
+              <div><div style="font-weight:600;font-size:0.8rem">${a.type.replace(/_/g,' ')}</div>
+              <div style="font-size:0.7rem;color:var(--text-secondary)">${a.description}</div></div>
+            </div>`
+          ).join('') || '<p class="text-muted" style="font-size:0.8rem">No alerts yet</p>'}`;
+      } catch(e) {}
+    }
+
+    loadEvents(); loadDashboard();
+  </script>
 </body>
 </html>

@@ -1,96 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Suite Dashboard</title>
-    <meta name="description" content="Unified AI Life Automation Suite Dashboard — manage habits, journal, vision intelligence, and screen time from one place.">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="static/style.css">
-    <link rel="manifest" href="static/manifest.json">
-    <meta name="theme-color" content="#050b14">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Your unified command center. Monitor all AI services from one dashboard.">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>AI Life Dashboard — Your Command Center</title>
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="stylesheet" href="/static/design-system.css">
+  <style>
+    :root { --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .service-card { display: flex; align-items: center; gap: 14px; padding: 16px;
+      background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+      margin-bottom: 12px; cursor: pointer; transition: var(--transition); text-decoration: none; color: inherit; }
+    .service-card:hover { background: var(--bg-card-hover); transform: translateY(-2px); }
+    .service-icon { width: 48px; height: 48px; border-radius: var(--radius-md); display: flex;
+      align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+    .service-info { flex: 1; }
+    .service-name { font-weight: 700; font-size: 1rem; }
+    .service-desc { font-size: 0.8rem; color: var(--text-secondary); }
+    .service-status { width: 8px; height: 8px; border-radius: 50%; }
+    .service-status.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
+    .service-status.offline { background: var(--danger); }
+    .digest-section { margin-top: 8px; }
+    .digest-section h3 { font-size: 0.9rem; margin-bottom: 8px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+  </style>
 </head>
 <body>
-    <div class="bg-mesh"></div>
+  <div class="container">
+    <div class="header fade-in">
+      <div class="emoji">🧠</div>
+      <h1 class="text-gradient">AI Life Dashboard</h1>
+      <p>Your unified command center</p>
+    </div>
 
-    <!-- Global Sidebar Navigation -->
-    <nav class="sidebar" role="navigation" aria-label="Main navigation">
-        <div class="brand">
-            <div class="brand-icon">
-                <i class="fa-solid fa-bolt"></i>
-            </div>
-            <h1>AI Suite Core</h1>
+    <div class="stat-grid fade-in fade-in-delay-1">
+      <div class="stat-card">
+        <span class="value text-gradient" id="servicesUp">0</span>
+        <span class="label">Online</span>
+      </div>
+      <div class="stat-card">
+        <span class="value text-success" id="totalApps">5</span>
+        <span class="label">Services</span>
+      </div>
+    </div>
+
+    <!-- Tab: Services -->
+    <div class="tab-content active" id="tab-services">
+      <div id="serviceList" class="fade-in fade-in-delay-2"></div>
+    </div>
+
+    <!-- Tab: Digest -->
+    <div class="tab-content" id="tab-digest">
+      <div class="card">
+        <div class="card-header"><h3>📬 Weekly Digest</h3></div>
+        <div id="digestContent">
+          <div class="empty-state"><div class="emoji">📊</div><p>Loading your weekly summary...</p></div>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <div class="nav-links">
-            <a href="#" class="nav-item active" data-target="http://localhost:8001">
-                <i class="fa-solid fa-book-journal-whills"></i>
-                Memory Journal
-            </a>
-            <a href="#" class="nav-item" data-target="http://localhost:8002">
-                <i class="fa-solid fa-shield-halved"></i>
-                Doomscroll Breaker
-            </a>
-            <a href="#" class="nav-item" data-target="http://localhost:8003">
-                <i class="fa-solid fa-eye"></i>
-                Visual Intelligence
-            </a>
-            <a href="#" class="nav-item" data-target="http://localhost:8004">
-                <i class="fa-solid fa-seedling"></i>
-                Micro-Habit Engine
-            </a>
-        </div>
+  <div class="toast" id="toast"></div>
 
-        <!-- Live Services Health Status -->
-        <div class="status-widget">
-            <div class="status-header">Services Telemetry</div>
-            <div class="status-item">
-                <span>Journal API</span>
-                <div class="status-indicator">
-                    <div class="dot" id="status-journal"></div>
-                </div>
-            </div>
-            <div class="status-item">
-                <span>Doomscroll API</span>
-                <div class="status-indicator">
-                    <div class="dot" id="status-doomscroll"></div>
-                </div>
-            </div>
-            <div class="status-item">
-                <span>Vision API</span>
-                <div class="status-indicator">
-                    <div class="dot" id="status-vision"></div>
-                </div>
-            </div>
-            <div class="status-item">
-                <span>Habit API</span>
-                <div class="status-indicator">
-                    <div class="dot" id="status-habit"></div>
-                </div>
-            </div>
-            
-            <a href="/api/v1/export" class="export-btn" download aria-label="Export all user data as ZIP">
-                <i class="fa-solid fa-cloud-arrow-down"></i>
-                Export All Data
-            </a>
-            <button id="voice-btn" class="export-btn" onclick="window.voiceEngine && window.voiceEngine.toggle()" aria-label="Toggle voice commands" style="margin-top:8px;background:rgba(99,102,241,0.2);">
-                <i class="fa-solid fa-microphone"></i>
-                🎤 Voice
-            </button>
-        </div>
-    </nav>
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="tab-services"><span class="nav-icon">🏠</span>Services</button>
+    <button class="nav-item" data-tab="tab-digest"><span class="nav-icon">📬</span>Digest</button>
+  </nav>
 
-    <!-- Content IFrame -->
-    <main class="main-content">
-        <div class="global-loader" id="loader">
-            <div class="spinner"></div>
-            <div class="loader-text">Initializing Gateway</div>
-        </div>
-        <iframe id="app-frame" class="app-frame" src="about:blank"></iframe>
-    </main>
+  <script>
+    const services = [
+      { name: 'Micro-Habit Engine', desc: 'Track habits, earn badges, build streaks', icon: '⚡',
+        color: 'rgba(102,126,234,0.1)', port: 8004, path: '/' },
+      { name: 'Doomscroll Breaker', desc: 'Screen time tracking & focus sessions', icon: '🛡️',
+        color: 'rgba(249,115,22,0.1)', port: 8002, path: '/' },
+      { name: 'Memory Journal', desc: 'AI-captioned photo & video memories', icon: '📔',
+        color: 'rgba(167,139,250,0.1)', port: 8001, path: '/' },
+      { name: 'Visual Intelligence', desc: 'Real-time CCTV analytics & security', icon: '👁️',
+        color: 'rgba(6,182,212,0.1)', port: 8003, path: '/' },
+    ];
 
-    <script src="static/app.js"></script>
-    <script src="static/voice.js"></script>
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        btn.classList.add('active');
+        if (btn.dataset.tab === 'tab-digest') loadDigest();
+      });
+    });
+
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    async function checkServices() {
+      let online = 0;
+      const el = document.getElementById('serviceList');
+      let html = '';
+
+      for (const s of services) {
+        let status = 'offline';
+        try {
+          const res = await fetch(`http://localhost:${s.port}/health`, {signal: AbortSignal.timeout(2000)});
+          if (res.ok) { status = 'online'; online++; }
+        } catch(e) {}
+
+        html += `<a class="service-card" href="http://localhost:${s.port}${s.path}" target="_blank">
+          <div class="service-icon" style="background:${s.color}">${s.icon}</div>
+          <div class="service-info">
+            <div class="service-name">${s.name}</div>
+            <div class="service-desc">${s.desc}</div>
+          </div>
+          <div class="service-status ${status}"></div>
+        </a>`;
+      }
+
+      el.innerHTML = html;
+      document.getElementById('servicesUp').textContent = online;
+    }
+
+    async function loadDigest() {
+      try {
+        const res = await fetch('/api/v1/digest');
+        const d = await res.json();
+        document.getElementById('digestContent').innerHTML = `
+          <div class="list-item">
+            <div class="icon" style="background:rgba(102,126,234,0.1)">📊</div>
+            <div class="info"><div class="title">Week Summary</div>
+            <div class="subtitle">${d.period || 'This Week'}</div></div>
+          </div>
+          ${d.services ? Object.entries(d.services).map(([k,v]) =>
+            `<div class="list-item">
+              <div class="info"><div class="title">${k}</div>
+              <div class="subtitle">${typeof v === 'object' ? JSON.stringify(v).slice(0,80) : v}</div></div>
+            </div>`
+          ).join('') : '<p class="text-muted">Microservices offline — start them to see your digest</p>'}`;
+      } catch(e) {
+        document.getElementById('digestContent').innerHTML =
+          '<div class="empty-state"><p>Start microservices to generate your digest</p></div>';
+      }
+    }
+
+    checkServices();
+  </script>
 </body>
 </html>

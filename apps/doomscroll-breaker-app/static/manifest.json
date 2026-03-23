@@ -1,18 +1,10 @@
 {
-    "name": "Doomscroll Breaker",
-    "short_name": "Breaker",
-    "description": "AI-Driven Focus Intervention Application",
-    "start_url": "./",
-    "display": "standalone",
-    "background_color": "#0b1120",
-    "theme_color": "#3b82f6",
-    "orientation": "portrait",
-    "icons": [
-        {
-            "src": "https://cdn-icons-png.flaticon.com/512/5993/5993077.png",
-            "type": "image/png",
-            "sizes": "512x512",
-            "purpose": "any maskable"
-        }
-    ]
+  "name": "Doomscroll Breaker",
+  "short_name": "Focus",
+  "description": "Break the scroll. Track screen time and reclaim your focus.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a1a",
+  "theme_color": "#f97316",
+  "icons": []
 }

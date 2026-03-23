@@ -1,53 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="/manifest.json">
-    <title>Memory Journal AI</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="AI-powered memory journal. Upload photos and videos, get auto-captions, and relive your moments.">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Memory Journal — Relive Your Moments</title>
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="stylesheet" href="/static/design-system.css">
+  <style>
+    :root { --accent-gradient: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%); }
+    .upload-zone { border: 2px dashed var(--glass-border); border-radius: var(--radius-lg);
+      padding: 40px 20px; text-align: center; cursor: pointer; transition: var(--transition);
+      background: var(--bg-card); }
+    .upload-zone:hover { border-color: #a78bfa; background: rgba(167,139,250,0.05); }
+    .upload-zone .emoji { font-size: 2.5rem; }
+    .upload-zone input { display: none; }
+    .memory-card { border-radius: var(--radius-lg); overflow: hidden; background: var(--bg-card);
+      border: 1px solid var(--glass-border); margin-bottom: 16px; }
+    .memory-card .memory-meta { padding: 14px; }
+    .memory-card .memory-caption { font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; }
+    .memory-card .memory-date { font-size: 0.75rem; color: var(--text-secondary); }
+    .memory-card .memory-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .search-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+    .search-bar input { flex: 1; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+  </style>
 </head>
 <body>
-    <div class="background-orbs">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
+  <div class="container">
+    <div class="header fade-in">
+      <div class="emoji">📔</div>
+      <h1 style="background:linear-gradient(135deg,#a78bfa,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Memory Journal</h1>
+      <p>AI-powered memories, beautifully organized</p>
     </div>
 
-    <nav class="glass-nav">
-        <h1>✨ Memory Journal</h1>
-        <button id="theme-toggle" class="btn-icon">🌓</button>
-    </nav>
+    <div class="stat-grid fade-in fade-in-delay-1">
+      <div class="stat-card">
+        <span class="value" style="color:#a78bfa" id="totalEntries">0</span>
+        <span class="label">Memories</span>
+      </div>
+      <div class="stat-card">
+        <span class="value text-success" id="photosCount">0</span>
+        <span class="label">Photos</span>
+      </div>
+    </div>
 
-    <main class="container">
-        <section class="upload-section glass-panel">
-            <h2>Capture a Memory</h2>
-            <div id="dropzone" class="glass-panel" style="margin-top:2rem; cursor:pointer; text-align:center; padding:1.5rem; border:1px dashed rgba(255,255,255,0.2);">
-                <p>Click to attach a memory (Image or MP4 Video)</p>
-                <input type="file" id="media-input" accept="image/*,video/mp4" hidden>
-            </div>
-            
-            <img id="image-preview" class="hidden" style="width:100%; border-radius:10px; margin-top:1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" src="" alt="Preview">
-            <button id="upload-btn" class="btn-primary">Journal It ➔</button>
-        </section>
+    <!-- Tab: Timeline -->
+    <div class="tab-content active" id="tab-timeline">
+      <div class="card fade-in fade-in-delay-2">
+        <div class="card-header"><h3>📸 Upload Memory</h3></div>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+          <div class="emoji">📷</div>
+          <p style="margin-top:8px;color:var(--text-secondary)">Tap to upload a photo or video</p>
+          <p style="font-size:0.7rem;color:var(--text-muted)">JPG, PNG, MP4 supported</p>
+          <input type="file" id="fileInput" accept="image/*,video/*" onchange="uploadFile(this)">
+        </div>
+      </div>
 
-        <section class="timeline-section glass-panel">
-            <div class="timeline-header">
-                <h2>Your Timeline</h2>
-                <button id="refresh-btn" class="btn-secondary">↻ Refresh</button>
-            </div>
-            
-            <div class="search-bar">
-                <input type="text" id="search-input" placeholder="Search memories, tags...">
-                <button id="search-btn" class="btn-secondary">Search</button>
-            </div>
+      <div id="timeline">
+        <div class="empty-state"><div class="emoji">🌅</div><p>Your memories will appear here</p></div>
+      </div>
+    </div>
 
-            <div id="timeline-container" class="timeline">
-                <!-- Entries injected via JS -->
-            </div>
-        </section>
-    </main>
+    <!-- Tab: Search -->
+    <div class="tab-content" id="tab-search">
+      <div class="card">
+        <div class="card-header"><h3>🔍 Search Memories</h3></div>
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search by caption, tags..." class="input-group"
+            style="padding:12px 16px;background:var(--bg-card);border:1px solid var(--glass-border);
+            border-radius:var(--radius-md);color:var(--text-primary);font-family:var(--font);">
+          <button class="btn btn-primary btn-sm" onclick="searchMemories()">🔍</button>
+        </div>
+        <div id="searchResults"></div>
+      </div>
+    </div>
 
-    <script src="app.js"></script>
+    <!-- Tab: On This Day -->
+    <div class="tab-content" id="tab-otd">
+      <div class="card">
+        <div class="card-header"><h3>📅 On This Day</h3></div>
+        <div id="otdResults">
+          <div class="empty-state"><div class="emoji">🕰️</div><p>Memories from this date in past years</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="tab-timeline"><span class="nav-icon">📸</span>Timeline</button>
+    <button class="nav-item" data-tab="tab-search"><span class="nav-icon">🔍</span>Search</button>
+    <button class="nav-item" data-tab="tab-otd"><span class="nav-icon">📅</span>On This Day</button>
+  </nav>
+
+  <script>
+    const API = '/api/v1/journal';
+
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        btn.classList.add('active');
+        if (btn.dataset.tab === 'tab-otd') loadOnThisDay();
+      });
+    });
+
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    async function uploadFile(input) {
+      if (!input.files[0]) return;
+      const fd = new FormData();
+      fd.append('file', input.files[0]);
+      toast('📤 Uploading...');
+      const res = await fetch(API + '/upload', { method:'POST', body:fd });
+      const data = await res.json();
+      toast(`✅ "${data.caption}" saved!`);
+      loadTimeline();
+    }
+
+    async function loadTimeline() {
+      const res = await fetch(API + '/timeline');
+      const data = await res.json();
+      document.getElementById('totalEntries').textContent = data.total;
+      document.getElementById('photosCount').textContent = data.total;
+      if (!data.entries?.length) return;
+      document.getElementById('timeline').innerHTML = data.entries.map(e =>
+        `<div class="memory-card">
+          <div class="memory-meta">
+            <div class="memory-caption">${e.caption || 'Untitled Memory'}</div>
+            <div class="memory-date">${e.filename} • ${new Date(e.timestamp).toLocaleDateString()}</div>
+            <div class="memory-tags">
+              ${(e.tags||[]).map(t => `<span class="badge badge-info">${t}</span>`).join('')}
+            </div>
+          </div>
+        </div>`
+      ).join('');
+    }
+
+    async function searchMemories() {
+      const q = document.getElementById('searchInput').value;
+      if (!q) return;
+      const res = await fetch(API + `/search?query=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      document.getElementById('searchResults').innerHTML = data.entries?.length
+        ? data.entries.map(e =>
+          `<div class="list-item">
+            <div class="icon" style="background:rgba(167,139,250,0.1)">📸</div>
+            <div class="info"><div class="title">${e.caption}</div>
+            <div class="subtitle">${e.filename}</div></div>
+          </div>`
+        ).join('')
+        : '<div class="empty-state"><p>No results found</p></div>';
+    }
+
+    async function loadOnThisDay() {
+      try {
+        const res = await fetch(API + '/on-this-day');
+        const data = await res.json();
+        document.getElementById('otdResults').innerHTML = data.entries?.length
+          ? data.entries.map(e =>
+            `<div class="memory-card"><div class="memory-meta">
+              <div class="memory-caption">${e.caption}</div>
+              <div class="memory-date">${e.filename}</div>
+            </div></div>`
+          ).join('')
+          : '<div class="empty-state"><div class="emoji">🕰️</div><p>No memories from this date yet</p></div>';
+      } catch(e) {}
+    }
+
+    loadTimeline();
+  </script>
 </body>
 </html>

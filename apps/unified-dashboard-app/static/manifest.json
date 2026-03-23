@@ -1,16 +1,10 @@
 {
-    "name": "AI Life Automation Suite",
-    "short_name": "AI Suite",
-    "description": "Unified dashboard for managing habits, journal, vision intelligence, and screen time.",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#050b14",
-    "theme_color": "#050b14",
-    "icons": [
-        {
-            "src": "/static/icon.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        }
-    ]
+  "name": "AI Life Dashboard",
+  "short_name": "Dashboard",
+  "description": "Your unified command center for all AI Life services.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a1a",
+  "theme_color": "#667eea",
+  "icons": []
 }

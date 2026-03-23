@@ -1,50 +1,250 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Micro-Habit Engine — Track Tiny Habits, Build Lasting Change</title>
-    <meta name="description" content="AI-powered micro-habit tracker with real-time feedback, strength scoring, and smart nudges.">
-    <link rel="manifest" href="/static/manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Build tiny habits that stick. Track micro-habits, earn badges, and share your streaks.">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Micro-Habit Engine — Build Tiny Habits That Stick</title>
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="stylesheet" href="/static/design-system.css">
+  <style>
+    .streak-fire { display: inline-block; animation: pulse 1.5s ease infinite; }
+    .habit-btn { width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--glass-border);
+      background: var(--bg-card); font-size: 1.4rem; cursor: pointer; transition: var(--transition);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .habit-btn:hover { border-color: #667eea; background: rgba(102,126,234,0.1); }
+    .habit-btn.done { background: rgba(74,222,128,0.15); border-color: var(--success); }
+    .badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .badge-item { text-align: center; padding: 16px 8px; background: var(--bg-card);
+      border: 1px solid var(--glass-border); border-radius: var(--radius-md);
+      transition: var(--transition); }
+    .badge-item.earned { border-color: var(--warning); background: rgba(251,191,36,0.05); }
+    .badge-item .badge-icon { font-size: 2rem; margin-bottom: 4px; }
+    .badge-item .badge-name { font-size: 0.7rem; font-weight: 600; }
+    .badge-item .badge-desc { font-size: 0.6rem; color: var(--text-muted); margin-top: 2px; }
+    .template-card { display: flex; align-items: center; gap: 12px; padding: 14px;
+      background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: var(--radius-md);
+      margin-bottom: 10px; cursor: pointer; transition: var(--transition); }
+    .template-card:hover { background: var(--bg-card-hover); transform: translateY(-1px); }
+    .template-card .t-icon { font-size: 1.5rem; }
+    .template-card .t-info { flex: 1; }
+    .template-card .t-name { font-weight: 600; font-size: 0.9rem; }
+    .template-card .t-desc { font-size: 0.75rem; color: var(--text-secondary); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+  </style>
 </head>
 <body>
-    <div class="app-container">
-        <header>
-            <div class="logo">🧬 <span>Micro-Habit Engine</span></div>
-            <button id="themeToggle" class="theme-btn" title="Toggle Theme">🌙</button>
-        </header>
-
-        <main>
-            <!-- Quick Log Section -->
-            <section class="card log-section">
-                <h2>⚡ Quick Log</h2>
-                <div class="habit-buttons">
-                    <button class="habit-btn water" onclick="logHabit('drink_water')">💧 Water</button>
-                    <button class="habit-btn stretch" onclick="logHabit('stretch')">🧘 Stretch</button>
-                    <button class="habit-btn walk" onclick="logHabit('walk')">🚶 Walk</button>
-                </div>
-                <div id="logFeedback" class="feedback"></div>
-            </section>
-
-            <!-- Scores Section -->
-            <section class="card scores-section">
-                <h2>📊 Habit Strength</h2>
-                <div id="scoresContainer" class="scores-grid"></div>
-            </section>
-
-            <!-- Insights Section -->
-            <section class="card insights-section">
-                <h2>🧠 AI Insights</h2>
-                <div id="insightsContainer" class="insights-list"></div>
-            </section>
-        </main>
-
-        <footer>
-            <p>AI Life Automation Suite — Micro-Habit Engine v1.0</p>
-        </footer>
+  <div class="container">
+    <div class="header fade-in">
+      <div class="emoji">⚡</div>
+      <h1 class="text-gradient">Micro-Habits</h1>
+      <p>Build tiny habits that stick</p>
     </div>
-    <script src="/static/app.js"></script>
+
+    <!-- Stats -->
+    <div class="stat-grid fade-in fade-in-delay-1" id="stats">
+      <div class="stat-card">
+        <span class="value text-gradient" id="totalHabits">0</span>
+        <span class="label">Habits</span>
+      </div>
+      <div class="stat-card">
+        <span class="value text-success" id="todayLogs">0</span>
+        <span class="label">Today</span>
+      </div>
+      <div class="stat-card">
+        <span class="value text-warning" id="topStreak">0</span>
+        <span class="label">Best Streak</span>
+      </div>
+      <div class="stat-card">
+        <span class="value" id="totalBadges">0</span>
+        <span class="label">Badges</span>
+      </div>
+    </div>
+
+    <!-- Tab: Habits -->
+    <div class="tab-content active" id="tab-habits">
+      <div class="card fade-in fade-in-delay-2">
+        <div class="card-header">
+          <h3>🎯 Today's Habits</h3>
+          <button class="btn btn-sm btn-secondary" onclick="showTab('tab-templates')">+ New</button>
+        </div>
+        <div id="habitList">
+          <div class="empty-state"><div class="emoji">🌱</div><p>No habits yet — start by picking a template!</p></div>
+        </div>
+      </div>
+
+      <div class="card fade-in fade-in-delay-3" id="insightsCard" style="display:none;">
+        <div class="card-header"><h3>🧠 Smart Insights</h3></div>
+        <div id="insightsList"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Badges -->
+    <div class="tab-content" id="tab-badges">
+      <div class="card">
+        <div class="card-header"><h3>🏆 Achievement Badges</h3></div>
+        <div class="badge-grid" id="badgeGrid"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Templates -->
+    <div class="tab-content" id="tab-templates">
+      <div class="card">
+        <div class="card-header"><h3>📋 Quick Start Templates</h3></div>
+        <div id="templateList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="tab-habits"><span class="nav-icon">🎯</span>Habits</button>
+    <button class="nav-item" data-tab="tab-badges"><span class="nav-icon">🏆</span>Badges</button>
+    <button class="nav-item" data-tab="tab-templates"><span class="nav-icon">📋</span>Templates</button>
+  </nav>
+
+  <script>
+    const API = '/api/v1/habit';
+    let habitsLogged = {};
+
+    // ── Navigation ──
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.addEventListener('click', () => { showTab(btn.dataset.tab); });
+    });
+
+    function showTab(id) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelector(`[data-tab="${id}"]`)?.classList.add('active');
+    }
+
+    // ── Toast ──
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // ── API Helpers ──
+    async function api(path, opts = {}) {
+      const res = await fetch(API + path, { headers: {'Content-Type': 'application/json'}, ...opts });
+      return res.json();
+    }
+
+    // ── Load Scores & Render Habits ──
+    async function loadHabits() {
+      const scores = await api('/score');
+      const el = document.getElementById('habitList');
+
+      if (!scores.length) {
+        el.innerHTML = '<div class="empty-state"><div class="emoji">🌱</div><p>No habits yet — pick a template!</p></div>';
+        document.getElementById('totalHabits').textContent = '0';
+        return;
+      }
+
+      document.getElementById('totalHabits').textContent = scores.length;
+
+      let bestStreak = 0;
+      el.innerHTML = scores.map(s => {
+        if (s.streak_days > bestStreak) bestStreak = s.streak_days;
+        const pct = Math.min(100, s.decayed_score);
+        const statusColor = pct > 70 ? 'var(--success)' : pct > 40 ? 'var(--warning)' : 'var(--danger)';
+        const done = habitsLogged[s.habit_name];
+        return `<div class="list-item">
+          <button class="habit-btn ${done ? 'done' : ''}" onclick="logHabit('${s.habit_name}', this)" title="Log ${s.habit_name}">
+            ${done ? '✅' : '➕'}
+          </button>
+          <div class="info">
+            <div class="title">${s.habit_name.replace(/_/g,' ')} ${s.streak_days > 0 ? '<span class="streak-fire">🔥' + s.streak_days + '</span>' : ''}</div>
+            <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${statusColor}"></div></div>
+          </div>
+          <div class="action" style="color:${statusColor}">${Math.round(s.decayed_score)}</div>
+        </div>`;
+      }).join('');
+
+      document.getElementById('topStreak').textContent = bestStreak;
+    }
+
+    // ── Log Habit ──
+    async function logHabit(name, btn) {
+      await api('/log', { method: 'POST', body: JSON.stringify({habit_name: name}) });
+      habitsLogged[name] = true;
+      btn.classList.add('done');
+      btn.innerHTML = '✅';
+      toast(`✅ ${name.replace(/_/g,' ')} logged!`);
+      const count = parseInt(document.getElementById('todayLogs').textContent) + 1;
+      document.getElementById('todayLogs').textContent = count;
+      setTimeout(loadHabits, 500);
+    }
+
+    // ── Load Badges ──
+    async function loadBadges() {
+      const badges = await api('/badges');
+      const grid = document.getElementById('badgeGrid');
+      let earned = 0;
+      grid.innerHTML = badges.map(b => {
+        if (b.earned) earned++;
+        return `<div class="badge-item ${b.earned ? 'earned' : ''}">
+          <div class="badge-icon">${b.earned ? '⭐' : '🔒'}</div>
+          <div class="badge-name">${b.name}</div>
+          <div class="badge-desc">${b.criteria}</div>
+        </div>`;
+      }).join('');
+      document.getElementById('totalBadges').textContent = earned;
+    }
+
+    // ── Load Templates ──
+    async function loadTemplates() {
+      const tpls = await api('/templates');
+      document.getElementById('templateList').innerHTML = tpls.map((t, i) => {
+        const icons = ['💧','🧘','📖','🏃','✍️','🍎','😴'];
+        return `<div class="template-card" onclick="activateTemplate(${i})">
+          <div class="t-icon">${icons[i] || '⚡'}</div>
+          <div class="t-info">
+            <div class="t-name">${t.name}</div>
+            <div class="t-desc">${t.description}</div>
+          </div>
+          <span style="color:var(--text-muted)">→</span>
+        </div>`;
+      }).join('');
+    }
+
+    async function activateTemplate(idx) {
+      await api(`/templates/${idx}/activate`, { method: 'POST' });
+      toast('🎉 Template activated!');
+      showTab('tab-habits');
+      setTimeout(loadHabits, 300);
+    }
+
+    // ── Load Insights ──
+    async function loadInsights() {
+      const ins = await api('/insights');
+      if (!ins.length) return;
+      document.getElementById('insightsCard').style.display = 'block';
+      document.getElementById('insightsList').innerHTML = ins.map(i => {
+        const emoji = i.status === 'strong' ? '💪' : i.status === 'moderate' ? '👍' : i.status === 'decaying' ? '⚠️' : '🚨';
+        return `<div class="list-item">
+          <div class="icon" style="background:rgba(102,126,234,0.1)">${emoji}</div>
+          <div class="info">
+            <div class="title">${i.habit_name.replace(/_/g,' ')}</div>
+            <div class="subtitle">${i.nudge || i.status}</div>
+          </div>
+          <span class="badge badge-${i.status === 'strong' ? 'success' : i.status === 'moderate' ? 'info' : 'warning'}">${i.status}</span>
+        </div>`;
+      }).join('');
+    }
+
+    // ── Init ──
+    loadHabits(); loadBadges(); loadTemplates(); loadInsights();
+  </script>
 </body>
 </html>

@@ -1,70 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="/manifest.json">
-    <title>Doomscroll Breaker AI</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Break the scroll. Track screen time, get alerts, and reclaim your focus.">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Doomscroll Breaker — Reclaim Your Focus</title>
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="stylesheet" href="/static/design-system.css">
+  <style>
+    :root { --accent-gradient: linear-gradient(135deg, #f97316 0%, #ef4444 100%); }
+    .alert-pulse { animation: pulse 2s ease infinite; color: var(--danger); }
+    .focus-ring { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--glass-border);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 16px;
+      background: var(--bg-card); transition: var(--transition); }
+    .focus-ring.active { border-color: var(--success); background: rgba(74,222,128,0.05);
+      box-shadow: 0 0 30px rgba(74,222,128,0.15); }
+    .focus-ring .time { font-size: 1.8rem; font-weight: 800; }
+    .focus-ring .label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
+    .app-usage { display: flex; align-items: center; gap: 12px; padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .app-usage:last-child { border: none; }
+    .app-usage .app-icon { width: 36px; height: 36px; border-radius: 10px; display: flex;
+      align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .app-usage .app-info { flex: 1; }
+    .app-usage .app-name { font-weight: 600; font-size: 0.85rem; }
+    .app-usage .app-time { font-size: 0.75rem; color: var(--text-secondary); }
+    .app-usage .app-mins { font-weight: 700; font-size: 0.9rem; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+  </style>
 </head>
 <body>
-    <div class="background-gradients">
-        <div class="blob red-blob"></div>
-        <div class="blob orange-blob"></div>
+  <div class="container">
+    <div class="header fade-in">
+      <div class="emoji">🛡️</div>
+      <h1 style="background:linear-gradient(135deg,#f97316,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Doomscroll Breaker</h1>
+      <p>Reclaim your focus, one session at a time</p>
     </div>
 
-    <nav class="glass-nav">
-        <h1>🛑 Doomscroll Breaker</h1>
-        <button id="theme-toggle" class="btn-icon">🌔</button>
-    </nav>
+    <!-- Stats -->
+    <div class="stat-grid fade-in fade-in-delay-1">
+      <div class="stat-card">
+        <span class="value" style="color:#f97316" id="totalMins">0</span>
+        <span class="label">Total Min</span>
+      </div>
+      <div class="stat-card">
+        <span class="value text-danger" id="alertCount">0</span>
+        <span class="label">Alerts</span>
+      </div>
+      <div class="stat-card">
+        <span class="value text-success" id="focusCount">0</span>
+        <span class="label">Focus</span>
+      </div>
+      <div class="stat-card">
+        <span class="value text-warning" id="riskLevel">–</span>
+        <span class="label">Risk</span>
+      </div>
+    </div>
 
-    <main class="container">
-        <section class="log-section glass-panel">
-            <h2>Log App Usage</h2>
-            <div class="form-group">
-                <input type="text" id="app-name" placeholder="E.g., TikTok, Instagram">
-                <input type="number" id="app-minutes" placeholder="Minutes used...">
-                <button id="log-usage-btn" class="btn-danger">Track Usage</button>
-            </div>
-            <div id="status-message" class="status-message"></div>
-        </section>
+    <!-- Tab: Track -->
+    <div class="tab-content active" id="tab-track">
+      <div class="card fade-in fade-in-delay-2">
+        <div class="card-header"><h3>📱 Log Screen Time</h3></div>
+        <div class="input-group">
+          <label>App Name</label>
+          <select id="appSelect">
+            <option>Instagram</option><option>TikTok</option><option>Twitter</option>
+            <option>YouTube</option><option>Reddit</option><option>Facebook</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Minutes Used</label>
+          <input type="number" id="minutes" placeholder="30" min="1" max="1440">
+        </div>
+        <button class="btn btn-primary" onclick="logUsage()">⚡ Log Usage</button>
+      </div>
 
-        <section class="focus-section glass-panel">
-            <div class="glass-panel" style="margin-bottom: 2rem;">
-                <h2>Track Usage</h2>
-                <input type="text" id="app-name" placeholder="App Name (e.g. TikTok)" class="input-field">
-                <input type="number" id="duration" placeholder="Duration (minutes)" class="input-field" min="1">
-                <button id="track-btn" class="btn-primary" style="width: 100%; margin-top: 1rem;">Log Session</button>
-            </div>
+      <div class="card fade-in fade-in-delay-3" id="alertsCard" style="display:none;">
+        <div class="card-header"><h3>🚨 Alerts</h3></div>
+        <div id="alertsList"></div>
+      </div>
+    </div>
 
-            <div class="glass-panel" style="border: 1px solid rgba(239, 68, 68, 0.3);">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h2>Predictive LSTM Intervention</h2>
-                    <span style="background: rgba(239, 68, 68, 0.2); color:#ef4444; padding:2px 8px; border-radius:12px; font-size:0.7rem;">BETA</span>
-                </div>
-                <p style="color:#aab4cc; margin-bottom:1rem; font-size:0.9rem;">Simulate opening a target app to calculate heuristic doomscroll risk mapping.</p>
-                <input type="text" id="predict-app-name" placeholder="Target App (e.g. Instagram)" class="input-field">
-                <button id="predict-btn" class="btn-secondary" style="width: 100%; margin-top: 1rem; background:rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.5); color:#ff8080;">Analyze Risk Vector</button>
-                <div id="prediction-result" class="hidden" style="margin-top:1rem; padding:1rem; border-radius:8px; background:rgba(0,0,0,0.5); text-align:center;"></div>
-            </div>
-            
-            <div id="active-sessions" class="active-sessions">
-                <!-- Active sessions injected here -->
-            </div>
-        </section>
+    <!-- Tab: Focus -->
+    <div class="tab-content" id="tab-focus">
+      <div class="card" style="text-align:center">
+        <h3 style="margin-bottom:16px">🧘 Focus Session</h3>
+        <div class="focus-ring" id="focusRing">
+          <span class="time" id="focusTimer">25:00</span>
+          <span class="label">minutes</span>
+        </div>
+        <div class="btn-group" style="margin-bottom:12px">
+          <button class="btn btn-sm btn-secondary" onclick="setPomodoro(25)">25m</button>
+          <button class="btn btn-sm btn-secondary" onclick="setPomodoro(50)">50m</button>
+          <button class="btn btn-sm btn-secondary" onclick="setPomodoro(90)">90m</button>
+        </div>
+        <div class="input-group">
+          <label>Block App</label>
+          <select id="blockApp">
+            <option>Instagram</option><option>TikTok</option><option>Twitter</option><option>YouTube</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="focusBtn" onclick="startFocus()">🎯 Start Focus Session</button>
+      </div>
+    </div>
 
-        <section class="alerts-section glass-panel">
-            <div class="timeline-header">
-                <h2>Health Alerts</h2>
-                <button id="refresh-alerts-btn" class="btn-secondary">↻ Sync</button>
-            </div>
-            <div id="alerts-container" class="alerts-container">
-                <!-- Alerts injected here -->
-            </div>
-        </section>
-    </main>
+    <!-- Tab: Reports -->
+    <div class="tab-content" id="tab-reports">
+      <div class="card">
+        <div class="card-header"><h3>📊 Daily Report</h3></div>
+        <div id="reportContent">
+          <div class="empty-state"><div class="emoji">📈</div><p>Log some usage to see your report</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <script src="app.js"></script>
+  <div class="toast" id="toast"></div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="tab-track"><span class="nav-icon">📱</span>Track</button>
+    <button class="nav-item" data-tab="tab-focus"><span class="nav-icon">🧘</span>Focus</button>
+    <button class="nav-item" data-tab="tab-reports"><span class="nav-icon">📊</span>Reports</button>
+  </nav>
+
+  <script>
+    const API = '/api/v1/usage';
+    let focusInterval = null;
+    let focusSecs = 25 * 60;
+
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    async function logUsage() {
+      const app_name = document.getElementById('appSelect').value;
+      const minutes = parseInt(document.getElementById('minutes').value) || 30;
+      await fetch(API + '/track', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({app_name, minutes}) });
+      toast(`📱 ${minutes}m on ${app_name} logged`);
+      const total = parseInt(document.getElementById('totalMins').textContent) + minutes;
+      document.getElementById('totalMins').textContent = total;
+      loadAlerts();
+      loadReport();
+    }
+
+    async function loadAlerts() {
+      const res = await fetch(API + '/alerts');
+      const alerts = await res.json();
+      document.getElementById('alertCount').textContent = alerts.length;
+      if (!alerts.length) return;
+      document.getElementById('alertsCard').style.display = 'block';
+      document.getElementById('alertsList').innerHTML = alerts.slice(-5).reverse().map(a =>
+        `<div class="list-item">
+          <div class="icon" style="background:rgba(248,113,113,0.1)">🚨</div>
+          <div class="info"><div class="title">${a.message}</div>
+          <div class="subtitle">${a.app_name} • ${a.total_minutes}m total</div></div>
+        </div>`
+      ).join('');
+    }
+
+    async function loadReport() {
+      try {
+        const res = await fetch(API + '/report/daily');
+        const data = await res.json();
+        if (data.total_minutes) {
+          document.getElementById('reportContent').innerHTML = `
+            <div class="list-item"><div class="info"><div class="title">Total Screen Time</div></div>
+            <div class="action" style="color:#f97316">${data.total_minutes}m</div></div>
+            <div class="list-item"><div class="info"><div class="title">Alerts Triggered</div></div>
+            <div class="action text-danger">${data.alert_count}</div></div>
+            ${(data.app_breakdown||[]).map(a =>
+              `<div class="app-usage">
+                <div class="app-icon" style="background:rgba(249,115,22,0.1)">📱</div>
+                <div class="app-info"><div class="app-name">${a.app_name}</div>
+                <div class="app-time">${a.category}</div></div>
+                <div class="app-mins" style="color:#f97316">${a.minutes}m</div>
+              </div>`
+            ).join('')}`;
+        }
+      } catch(e) {}
+    }
+
+    function setPomodoro(mins) { focusSecs = mins * 60; updateTimerDisplay(); }
+
+    function updateTimerDisplay() {
+      const m = Math.floor(focusSecs / 60).toString().padStart(2,'0');
+      const s = (focusSecs % 60).toString().padStart(2,'0');
+      document.getElementById('focusTimer').textContent = `${m}:${s}`;
+    }
+
+    async function startFocus() {
+      const app = document.getElementById('blockApp').value;
+      await fetch(API + '/focus', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({duration_minutes: Math.ceil(focusSecs/60), app_to_block: app}) });
+      document.getElementById('focusRing').classList.add('active');
+      document.getElementById('focusBtn').disabled = true;
+      const fc = parseInt(document.getElementById('focusCount').textContent) + 1;
+      document.getElementById('focusCount').textContent = fc;
+      toast(`🧘 Focus session started — ${app} blocked`);
+      focusInterval = setInterval(() => {
+        focusSecs--;
+        updateTimerDisplay();
+        if (focusSecs <= 0) {
+          clearInterval(focusInterval);
+          document.getElementById('focusRing').classList.remove('active');
+          document.getElementById('focusBtn').disabled = false;
+          toast('✅ Focus session complete!');
+          focusSecs = 25 * 60;
+          updateTimerDisplay();
+        }
+      }, 1000);
+    }
+
+    loadAlerts(); loadReport();
+  </script>
 </body>
 </html>

@@ -1,10 +1,10 @@
 {
-    "name": "Micro-Habit Engine",
-    "short_name": "Habits",
-    "description": "Track and reinforce micro-habits with real-time AI feedback",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#0f0f1a",
-    "theme_color": "#7c5cfc",
-    "icons": []
+  "name": "Micro-Habit Engine",
+  "short_name": "Habits",
+  "description": "Build tiny habits that stick. Track, earn badges, share streaks.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a1a",
+  "theme_color": "#667eea",
+  "icons": []
 }
