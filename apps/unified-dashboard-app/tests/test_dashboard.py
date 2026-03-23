@@ -15,7 +15,7 @@ def test_health_check():
 def test_serve_ui():
     response = client.get("/")
     assert response.status_code == 200
-    assert "AI Suite Dashboard" in response.text
+    assert "AI Life Dashboard" in response.text
 
 
 def test_get_services_status_all_online():

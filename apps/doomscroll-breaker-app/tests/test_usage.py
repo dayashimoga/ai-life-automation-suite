@@ -121,3 +121,19 @@ def test_system_monitor_exception():
         response = client.get("/api/v1/usage/monitor")
         assert response.status_code == 200
         assert response.json()["error"] == "System monitor unavailable"
+
+
+def test_analyzer_no_sessions():
+    from services.analyzer import analyzer
+    analyzer.sessions.clear()
+    assert analyzer.get_total_minutes() == 0
+    assert analyzer.get_total_minutes("nonexistent") == 0
+
+
+def test_predictive_ai_empty_db():
+    from services.predictive_ai import predictor
+    from unittest.mock import patch
+    with patch("services.predictive_ai._get_db", return_value=[]):
+        data = predictor.get_usage_analytics()
+        assert data["total_sessions"] == 0
+        assert data["doomscroll_sessions"] == 0

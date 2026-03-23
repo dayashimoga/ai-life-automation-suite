@@ -29,8 +29,8 @@ foreach ($app in $apps) {
             & .venv_tmp\Scripts\python.exe -m pip install --quiet -r requirements.txt
         }
         
-        Write-Host "  -> Running tests..." -ForegroundColor DarkGray
-        $result = & .venv_tmp\Scripts\python.exe -m pytest tests/ -v --tb=short 2>&1
+        Write-Host "  -> Running tests with coverage..." -ForegroundColor DarkGray
+        $result = & .venv_tmp\Scripts\python.exe -m pytest tests/ -v --tb=short --cov=. --cov-report=term-missing 2>&1
         $exitCode = $LASTEXITCODE
         Write-Host $result
 

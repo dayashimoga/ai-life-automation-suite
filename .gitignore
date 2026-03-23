@@ -49,4 +49,7 @@ test_out*.txt
 demo_out.txt
 err.txt
 pytest_out.txt
+pytest_cov.txt
 *.log
+.coverage
+htmlcov/
