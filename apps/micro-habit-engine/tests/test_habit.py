@@ -43,7 +43,9 @@ def test_log_habit():
 
 def test_log_habit_with_timestamp():
     ts = "2026-03-22T10:00:00"
-    r = client.post("/api/v1/habit/log", json={"habit_name": "stretch", "timestamp": ts})
+    r = client.post(
+        "/api/v1/habit/log", json={"habit_name": "stretch", "timestamp": ts}
+    )
     assert r.status_code == 200
     assert r.json()["habit"] == "stretch"
 

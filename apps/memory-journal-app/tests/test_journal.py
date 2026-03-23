@@ -24,7 +24,6 @@ def clear_db():
     yield
 
 
-
 def test_health_check():
     response = client.get("/health")
     assert response.status_code == 200
@@ -40,7 +39,7 @@ def test_upload_image():
     assert "test image" in data["caption"]
     assert "photo" in data["tags"]
     assert "Location pending" in data["mock_location"]
-    
+
     # Verify via DB/timeline
     timeline_resp = client.get("/api/v1/journal/timeline")
     assert timeline_resp.json()["total"] >= 1

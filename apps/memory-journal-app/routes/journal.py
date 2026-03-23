@@ -8,7 +8,6 @@ from core.database import (
     search_entries,
     get_entries_on_this_day,
 )
-from typing import List
 from datetime import datetime
 from uuid import uuid4
 import cv2

@@ -133,7 +133,6 @@ APP_CATEGORIES = {
 @router.get("/report/daily")
 async def daily_report():
     """Generate a daily screen time summary with category breakdown."""
-    from datetime import timedelta
 
     today = datetime.utcnow().date()
     today_records = [r for r in tracker.usage_records if r.timestamp.date() == today]

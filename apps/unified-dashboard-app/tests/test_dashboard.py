@@ -154,6 +154,7 @@ def test_auth_full_flow():
 
 # ── Cross-App Intelligence Tests ──
 
+
 def test_intelligence_endpoint_no_services():
     """Test that the intelligence endpoint returns a valid response even when
     sibling services are offline (graceful degradation)."""
@@ -174,8 +175,7 @@ def test_intelligence_endpoint_no_services():
 def test_intelligence_endpoint_with_journal_entries():
     """Test that the intelligence endpoint includes a burnout signal
     when no journal entries are returned."""
-    from unittest.mock import patch, AsyncMock, MagicMock
-    import httpx
+    from unittest.mock import patch, MagicMock
 
     async def mock_get(url, **kwargs):
         # The response object returned by get() is NOT async itself
@@ -183,10 +183,16 @@ def test_intelligence_endpoint_with_journal_entries():
         mock_r.status_code = 200
         # Habit: one weak habit
         if "habit" in url:
-            mock_r.json.return_value = [{"habit_name": "drink_water", "streak_days": 0, "decayed_score": 10}]
+            mock_r.json.return_value = [
+                {"habit_name": "drink_water", "streak_days": 0, "decayed_score": 10}
+            ]
         # Doomscroll: high risk
         elif "usage" in url:
-            mock_r.json.return_value = {"average_risk": 0.8, "total_sessions": 10, "doomscroll_sessions": 8}
+            mock_r.json.return_value = {
+                "average_risk": 0.8,
+                "total_sessions": 10,
+                "doomscroll_sessions": 8,
+            }
         # Journal: empty
         elif "journal" in url:
             mock_r.json.return_value = {"entries": []}

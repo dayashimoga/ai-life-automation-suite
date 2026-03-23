@@ -125,6 +125,7 @@ def test_system_monitor_exception():
 
 def test_analyzer_no_sessions():
     from services.analyzer import analyzer
+
     analyzer.sessions.clear()
     assert analyzer.get_total_minutes() == 0
     assert analyzer.get_total_minutes("nonexistent") == 0
@@ -133,6 +134,7 @@ def test_analyzer_no_sessions():
 def test_predictive_ai_empty_db():
     from services.predictive_ai import predictor
     from unittest.mock import patch
+
     with patch("services.predictive_ai._get_db", return_value=[]):
         data = predictor.get_usage_analytics()
         assert data["total_sessions"] == 0

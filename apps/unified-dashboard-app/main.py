@@ -234,56 +234,64 @@ async def cross_app_intelligence():
 
         # Insight: High screen time + failing habit → strong correlation warning
         if score < 40 and doomscroll_ratio > 0.4:
-            insights.append({
-                "type": "screen_habit_conflict",
-                "severity": "high",
-                "insight": (
-                    f"📵 You tend to fail '{name}' on days with high screen time. "
-                    f"Your doomscroll ratio is {doomscroll_ratio:.0%} — try blocking distracting apps "
-                    f"30 minutes before your habit time."
-                ),
-                "confidence": round(min(0.95, 0.5 + doomscroll_ratio), 2),
-                "habit": name,
-            })
+            insights.append(
+                {
+                    "type": "screen_habit_conflict",
+                    "severity": "high",
+                    "insight": (
+                        f"📵 You tend to fail '{name}' on days with high screen time. "
+                        f"Your doomscroll ratio is {doomscroll_ratio:.0%} — try blocking distracting apps "
+                        f"30 minutes before your habit time."
+                    ),
+                    "confidence": round(min(0.95, 0.5 + doomscroll_ratio), 2),
+                    "habit": name,
+                }
+            )
         # Insight: Strong habit streak + low screen risk → reinforce the pattern
         elif streak >= 5 and avg_screen < 0.3:
-            insights.append({
-                "type": "positive_reinforcement",
-                "severity": "low",
-                "insight": (
-                    f"🔥 Your {streak}-day streak on '{name}' correlates with lower screen risk scores "
-                    f"({avg_screen:.0%}). Your habits are shielding you from doomscrolling. Keep it up!"
-                ),
-                "confidence": round(min(0.95, 0.6 + streak * 0.04), 2),
-                "habit": name,
-            })
+            insights.append(
+                {
+                    "type": "positive_reinforcement",
+                    "severity": "low",
+                    "insight": (
+                        f"🔥 Your {streak}-day streak on '{name}' correlates with lower screen risk scores "
+                        f"({avg_screen:.0%}). Your habits are shielding you from doomscrolling. Keep it up!"
+                    ),
+                    "confidence": round(min(0.95, 0.6 + streak * 0.04), 2),
+                    "habit": name,
+                }
+            )
         # Insight: Moderate habit + elevated screen risk → early warning
         elif 40 <= score < 70 and avg_screen > 0.5:
-            insights.append({
-                "type": "early_warning",
-                "severity": "medium",
-                "insight": (
-                    f"⚠️ '{name}' is weakening (score: {score:.0f}). "
-                    f"Your screen time risk is elevated ({avg_screen:.0%}). "
-                    f"These two patterns together predict a full habit reset within 3 days."
-                ),
-                "confidence": 0.75,
-                "habit": name,
-            })
+            insights.append(
+                {
+                    "type": "early_warning",
+                    "severity": "medium",
+                    "insight": (
+                        f"⚠️ '{name}' is weakening (score: {score:.0f}). "
+                        f"Your screen time risk is elevated ({avg_screen:.0%}). "
+                        f"These two patterns together predict a full habit reset within 3 days."
+                    ),
+                    "confidence": 0.75,
+                    "habit": name,
+                }
+            )
 
     # Burnout signal from journal frequency
     if len(journal_entries) == 0:
-        insights.append({
-            "type": "burnout_signal",
-            "severity": "medium",
-            "insight": (
-                "📔 You haven't journaled recently. Silence in your memory journal, "
-                "combined with active screen time, is an early burnout signal. "
-                "Write one sentence about today."
-            ),
-            "confidence": 0.65,
-            "habit": "journaling",
-        })
+        insights.append(
+            {
+                "type": "burnout_signal",
+                "severity": "medium",
+                "insight": (
+                    "📔 You haven't journaled recently. Silence in your memory journal, "
+                    "combined with active screen time, is an early burnout signal. "
+                    "Write one sentence about today."
+                ),
+                "confidence": 0.65,
+                "habit": "journaling",
+            }
+        )
 
     return {
         "status": "ok",
@@ -306,4 +314,3 @@ if os.path.exists(static_dir):
     @app.get("/")
     async def serve_ui():
         return FileResponse(os.path.join(static_dir, "index.html"))
-
