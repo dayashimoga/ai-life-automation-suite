@@ -8,6 +8,17 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Micro-Habit Engine — Build Tiny Habits That Stick</title>
+  
+  <!-- SEO & Social Sharing -->
+  <meta property="og:title" content="Micro-Habit Engine: Build Tiny Habits That Stick">
+  <meta property="og:description" content="Master your life with tiny, consistent actions. Track habits, earn badges, and share your streaks. Free and open-source.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="AI Life Automation Suite">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Micro-Habit Engine">
+  <meta name="twitter:description" content="Build 1% better habits every day with AI-powered insights.">
+  <meta name="keywords" content="habit tracker, micro-habits, productivity, self-improvement, AI habit coach">
+
   <link rel="manifest" href="/static/manifest.json">
   <link rel="stylesheet" href="/static/design-system.css">
   <style>
@@ -63,6 +74,11 @@
         <span class="value" id="totalBadges">0</span>
         <span class="label">Badges</span>
       </div>
+    </div>
+
+    <!-- Viral Share -->
+    <div class="card fade-in fade-in-delay-1" style="text-align:center; padding:12px;">
+      <button class="btn btn-secondary btn-sm" onclick="shareStreak()">🚀 Share My Progress</button>
     </div>
 
     <!-- Tab: Habits -->
