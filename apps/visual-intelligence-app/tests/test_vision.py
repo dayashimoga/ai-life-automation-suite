@@ -152,6 +152,8 @@ def test_spatial_analytics_heatmap():
 
     assert result is not None
     assert engine.heatmap_layer is not None
+
+
 def test_security_dashboard():
     res = client.get("/api/v1/vision/dashboard")
     assert res.status_code == 200
@@ -166,7 +168,7 @@ def test_zone_configuration():
     payload = {
         "name": "Front Door",
         "type": "restricted_area",
-        "coordinates": [{"x": 10, "y": 20}]
+        "coordinates": [{"x": 10, "y": 20}],
     }
     res_post = client.post("/api/v1/vision/zones", json=payload)
     assert res_post.status_code == 200
@@ -190,18 +192,22 @@ def test_identity_service():
                 init_identity_db()
 
     ident_module.DEEPFACE_AVAILABLE = True
-    
+
     # Create mock DeepFace class on the module if it doesn't exist
     if not hasattr(ident_module, "DeepFace"):
         ident_module.DeepFace = MagicMock()
 
     frame = np.zeros((10, 10, 3), dtype=np.uint8)
 
-    with patch.object(ident_module.DeepFace, "find", return_value=[MagicMock(empty=True)]):
+    with patch.object(
+        ident_module.DeepFace, "find", return_value=[MagicMock(empty=True)]
+    ):
         identities = analyze_identities(frame)
         assert identities == ["Unknown Person"]
 
-    with patch.object(ident_module.DeepFace, "find", return_value=[MagicMock(empty=False)]):
+    with patch.object(
+        ident_module.DeepFace, "find", return_value=[MagicMock(empty=False)]
+    ):
         identities = analyze_identities(frame)
         assert identities == ["Authorized User"]
 
@@ -213,7 +219,7 @@ def test_detection_service_with_mock():
     import numpy as np
     import cv2
     from services.detection import detection_module
-    
+
     class MockBoxEntry:
         def __init__(self):
             self.cls = np.array([0])
@@ -228,6 +234,7 @@ def test_detection_service_with_mock():
     class MockYolo:
         def __init__(self):
             self.names = {0: "person"}
+
         def track(self, *args, **kwargs):
             return [MockYoloResult()]
 
@@ -253,28 +260,32 @@ def test_process_video():
     with patch("routes.vision.analyze_identities", return_value=["Unknown Person"]):
         # Pass a mock cv2 VideoCapture
         original_cap = cv2.VideoCapture
+
         class MockCap:
             def __init__(self, *args, **kwargs):
                 self.frames_read = 0
+
             def isOpened(self):
                 return True
+
             def get(self, prop):
                 return 20
+
             def set(self, prop, val):
                 pass
+
             def read(self):
                 self.frames_read += 1
                 if self.frames_read > 15:
                     return False, None
                 return True, np.zeros((10, 10, 3), dtype=np.uint8)
+
             def release(self):
                 pass
-        
+
         cv2.VideoCapture = MockCap
         try:
-            files = {
-                "file": ("test.mp4", b"fake mp4", "video/mp4")
-            }
+            files = {"file": ("test.mp4", b"fake mp4", "video/mp4")}
             res = client.post("/api/v1/vision/process", files=files)
             assert res.status_code == 200
         finally:
@@ -285,13 +296,11 @@ def test_process_image_unknown_person():
     import numpy as np
     import cv2
     from unittest.mock import patch
-    
+
     with patch("routes.vision.analyze_identities", return_value=["Unknown Person"]):
         img = np.zeros((10, 10, 3), dtype=np.uint8)
         _, buffer = cv2.imencode(".jpg", img)
-        
-        files = {
-            "file": ("test.jpg", buffer.tobytes(), "image/jpeg")
-        }
+
+        files = {"file": ("test.jpg", buffer.tobytes(), "image/jpeg")}
         res = client.post("/api/v1/vision/process", files=files)
         assert res.status_code == 200

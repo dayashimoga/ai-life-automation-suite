@@ -2,7 +2,9 @@ import requests
 import base64
 import os
 
-ARTIFACT_DIR = r"C:\Users\dayan\.gemini\antigravity\brain\73c473bb-d1a8-4901-8e3d-6e3be44acb7f"
+ARTIFACT_DIR = (
+    r"C:\Users\dayan\.gemini\antigravity\brain\73c473bb-d1a8-4901-8e3d-6e3be44acb7f"
+)
 
 print("Sending busy_street.jpg to Visual Intelligence API...")
 with open("busy_street.jpg", "rb") as f:

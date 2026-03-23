@@ -81,33 +81,42 @@ def test_usage_analytics():
     assert "doomscroll_sessions" in data
     assert "average_risk" in data
 
+
 def test_system_monitor():
     response = client.get("/api/v1/usage/monitor")
     assert response.status_code == 200
     data = response.json()
     assert "active_apps" in data
 
+
 def test_analyzer_total_minutes():
     from services.analyzer import analyzer
+
     analyzer.sessions.clear()
+
     class DummyReq:
         def __init__(self, app_name, minutes):
             self.app_name = app_name
             self.minutes = minutes
+
     analyzer.process_session(DummyReq("x", 5))
     analyzer.process_session(DummyReq("y", 10))
     assert analyzer.get_total_minutes() == 15
     assert analyzer.get_total_minutes("x") == 5
 
+
 def test_predictive_ai_analytics_exception():
     from services.predictive_ai import predictor
     from unittest.mock import patch
+
     with patch("services.predictive_ai._get_db", side_effect=Exception("DB Error")):
         data = predictor.get_usage_analytics()
         assert data["total_sessions"] == 0
 
+
 def test_system_monitor_exception():
     from unittest.mock import patch
+
     with patch("subprocess.run", side_effect=Exception("Timeout")):
         response = client.get("/api/v1/usage/monitor")
         assert response.status_code == 200

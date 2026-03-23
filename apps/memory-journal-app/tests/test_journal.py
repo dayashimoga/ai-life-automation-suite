@@ -102,6 +102,7 @@ def test_process_video():
 
 def test_caption_gps_parsing(tmp_path):
     from services.captioning import captioning_service
+
     f1 = tmp_path / "empty.jpg"
     f1.write_bytes(b"")
     assert captioning_service._parse_exif_gps(str(f1)) is None
@@ -119,6 +120,7 @@ def test_caption_gps_parsing(tmp_path):
 
 def test_caption_reverse_geocode():
     from services.captioning import captioning_service
+
     assert captioning_service._reverse_geocode(35.0, -90.0) == "United States"
     assert captioning_service._reverse_geocode(45.0, 10.0) == "Europe"
     assert captioning_service._reverse_geocode(20.0, 80.0) == "India"
@@ -128,19 +130,23 @@ def test_caption_reverse_geocode():
 
 def test_caption_date_extraction():
     from services.captioning import captioning_service
-    assert captioning_service._extract_date_from_name("IMG_15-03-2024.jpg") == "2024-03-15"
+
+    assert (
+        captioning_service._extract_date_from_name("IMG_15-03-2024.jpg") == "2024-03-15"
+    )
     assert captioning_service._extract_date_from_name("NoDate.jpg") is None
 
 
 def test_semantic_search_engine():
     from services.search import search_engine
+
     docs = [
         {"caption": "A beautiful sunset at the beach", "tags": ["nature", "ocean"]},
         {"caption": "City skyline at night", "tags": ["urban"]},
         {"caption": "Family dinner", "tags": ["food", "celebration"]},
     ]
     search_engine.index_documents(docs)
-    
+
     res = search_engine.search("sunset beach", top_k=1)
     assert len(res) == 1
     assert "sunset" in res[0][0]["caption"]
@@ -148,9 +154,9 @@ def test_semantic_search_engine():
     res2 = search_engine.search("city", top_k=1)
     assert len(res2) == 1
     assert "skyline" in res2[0][0]["caption"]
-    
+
     assert search_engine.search("nothinghere") == []
-    
+
     search_engine.index_documents([])
     assert search_engine.search("a") == []
 

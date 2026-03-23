@@ -18,7 +18,7 @@ for app in apps:
     app_dir = f"apps/{app['name']}"
     # use local venv pytest
     pytest_bin = os.path.join(app_dir, ".venv_tmp", "Scripts", "pytest.exe")
-    
+
     print(f"Running tests for {app['name']}")
     try:
         out = subprocess.check_output([pytest_bin, "--cov=."], cwd=app_dir, text=True)
@@ -28,8 +28,11 @@ for app in apps:
         if m:
             results["coverage"][app["name"]] = {"pass": "100%", "cov": f"{m.group(1)}%"}
         else:
-            results["coverage"][app["name"]] = {"pass": "100%", "cov": ">90% (Parsed error)"}
-    except Exception as e:
+            results["coverage"][app["name"]] = {
+                "pass": "100%",
+                "cov": ">90% (Parsed error)",
+            }
+    except Exception:
         results["coverage"][app["name"]] = {"pass": "Failed", "cov": "N/A"}
 
 print("--- Running Smoke Tests ---")
@@ -38,11 +41,14 @@ try:
     for app in apps:
         app_dir = f"apps/{app['name']}"
         py_bin = os.path.join(app_dir, ".venv_tmp", "Scripts", "python.exe")
-        p = subprocess.Popen([py_bin, "-m", "uvicorn", "main:app", "--port", str(app['port'])], cwd=app_dir)
+        p = subprocess.Popen(
+            [py_bin, "-m", "uvicorn", "main:app", "--port", str(app["port"])],
+            cwd=app_dir,
+        )
         processes.append((app["name"], p, app["port"]))
-    
-    time.sleep(5) # wait for servers to start
-    
+
+    time.sleep(5)  # wait for servers to start
+
     for name, p, port in processes:
         try:
             req = urllib.request.urlopen(f"http://localhost:{port}/health", timeout=3)

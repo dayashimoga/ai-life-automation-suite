@@ -28,15 +28,22 @@ for name, port, env_dict in apps_config:
     py_bin = os.path.join(app_dir, ".venv_tmp", "Scripts", "python.exe")
     if not os.path.exists(py_bin):
         print(f"venv not found in {app_dir}. Skipping?")
-    
-    subprocess.Popen([py_bin, "-m", "uvicorn", "main:app", "--port", str(port)], cwd=app_dir, env=env_dict)
+
+    subprocess.Popen(
+        [py_bin, "-m", "uvicorn", "main:app", "--port", str(port)],
+        cwd=app_dir,
+        env=env_dict,
+    )
 
 print("Starting Gradio... (assuming visual-intelligence-app venv has gradio installed)")
-py_bin_vis = os.path.join(os.getcwd(), "apps/visual-intelligence-app/.venv_tmp/Scripts/python.exe")
+py_bin_vis = os.path.join(
+    os.getcwd(), "apps/visual-intelligence-app/.venv_tmp/Scripts/python.exe"
+)
 subprocess.Popen([py_bin_vis, "gradio_ui.py"])
 
 print("All servers running. Waiting for them to boot...")
 time.sleep(10)
 print("Ready on http://127.0.0.1:7860")
 # Sleep forever
-while True: time.sleep(100)
+while True:
+    time.sleep(100)
