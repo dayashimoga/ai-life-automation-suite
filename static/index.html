@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Life Automation Suite | Connect Your World</title>
+    <meta name="description" content="A premium suite of AI-powered applications to monitor, journal, and optimize your daily life. From doomscroll breaking to visual intelligence.">
+    <meta name="theme-color" content="#0d0d12">
+    
+    <!-- Open Graph SEO -->
+    <meta property="og:title" content="AI Life Automation Suite">
+    <meta property="og:description" content="Maximize your productivity with unified ambient intelligence.">
+    <meta property="og:type" content="website">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Abstract Ambient Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="glass-nav">
+        <div class="nav-content">
+            <div class="logo">AI Life Automation <span class="badge">PRO</span></div>
+            <div class="nav-links">
+                <a href="#apps" class="nav-link">Apps</a>
+                <a href="#dashboard" class="nav-link">Dashboard</a>
+                <a href="#settings" class="nav-link">Settings</a>
+                <button class="nav-btn">Connect API</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content fade-in">
+            <h1 class="hero-title">Ambient Intelligence for Your <span class="gradient-text">Connected Life</span></h1>
+            <p class="hero-subtitle">Monitor screen time, log memories, and process real-world events seamlessly using powerful backend Python ML microservices.</p>
+            <div class="hero-actions">
+                <a href="#apps" class="primary-btn">Explore Suite</a>
+                <a href="https://github.com/dayashimoga/ai-life-automation-suite" target="_blank" class="secondary-btn">Source Code</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Apps Grid -->
+    <section id="apps" class="app-grid-section">
+        <h2 class="section-title">Suite Microservices</h2>
+        <div class="app-grid">
+            <!-- App Card 1 -->
+            <div class="app-card slide-up">
+                <div class="card-icon unified-icon"></div>
+                <div class="card-content">
+                    <h3>Unified Dashboard</h3>
+                    <p>Real-time analytics and authentication nexus tying all APIs into one persistent state.</p>
+                    <div class="status-indicator">
+                        <span class="dot online"></span> API Standby
+                    </div>
+                </div>
+            </div>
+            
+            <!-- App Card 2 -->
+            <div class="app-card slide-up" style="animation-delay: 0.1s;">
+                <div class="card-icon doomscroll-icon"></div>
+                <div class="card-content">
+                    <h3>Doomscroll Breaker</h3>
+                    <p>Adaptive ML predictor intercepting mindless scrolling behavior globally.</p>
+                    <div class="status-indicator">
+                        <span class="dot online"></span> API Standby
+                    </div>
+                </div>
+            </div>
+
+            <!-- App Card 3 -->
+            <div class="app-card slide-up" style="animation-delay: 0.2s;">
+                <div class="card-icon memory-icon"></div>
+                <div class="card-content">
+                    <h3>Memory Journal</h3>
+                    <p>Intelligent tagging, context-aware captioning, and semantic search for life's moments.</p>
+                    <div class="status-indicator">
+                        <span class="dot online"></span> API Standby
+                    </div>
+                </div>
+            </div>
+
+            <!-- App Card 4 -->
+            <div class="app-card slide-up" style="animation-delay: 0.3s;">
+                <div class="card-icon visual-icon"></div>
+                <div class="card-content">
+                    <h3>Visual Intelligence</h3>
+                    <p>Real-time byte-track detection, line crossing, and DeepFace identity tracking.</p>
+                    <div class="status-indicator">
+                        <span class="dot online"></span> API Standby
+                    </div>
+                </div>
+            </div>
+            
+            <!-- App Card 5 -->
+            <div class="app-card slide-up" style="animation-delay: 0.4s;">
+                <div class="card-icon habit-icon"></div>
+                <div class="card-content">
+                    <h3>Micro Habit Engine</h3>
+                    <p>Correlate tiny steps to massive results with smart scheduling matrices.</p>
+                    <div class="status-indicator">
+                        <span class="dot online"></span> API Standby
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Configuration Section -->
+    <section class="backend-config">
+        <div class="config-card glass-panel">
+            <h2>Backend APIs Connectivity</h2>
+            <p>Cloudflare Pages hosts this stunning UI. Your ML routines execute on external hosts (Render/Koyeb).</p>
+            <div class="api-fields">
+                <label>Microservice Base URL
+                    <input type="text" id="apiBaseUrl" placeholder="https://api.yourdomain.com/" value="http://localhost:5000/">
+                </label>
+                <button id="saveConfig" class="secondary-btn">Save Configuration</button>
+            </div>
+            <div id="toast" class="toast hidden">Saved!</div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 AI Life Automation Suite. Powered by FastAPI & Cloudflare Pages.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

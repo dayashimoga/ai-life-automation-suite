@@ -1,0 +1,42 @@
+# This render.yaml configures the 5 backend FastAPI apps to deploy on Render's free tier.
+# It acts as the zero-cost backbone for your Cloudflare Pages frontend.
+
+services:
+  - type: web
+    name: unified-dashboard-api
+    env: python
+    region: ohio
+    plan: free
+    buildCommand: "cd apps/unified-dashboard-app && pip install -r requirements.txt"
+    startCommand: "cd apps/unified-dashboard-app && uvicorn main:app --host 0.0.0.0 --port $PORT"
+
+  - type: web
+    name: doomscroll-breaker-api
+    env: python
+    region: ohio
+    plan: free
+    buildCommand: "cd apps/doomscroll-breaker-app && pip install -r requirements.txt"
+    startCommand: "cd apps/doomscroll-breaker-app && uvicorn main:app --host 0.0.0.0 --port $PORT"
+
+  - type: web
+    name: memory-journal-api
+    env: python
+    region: ohio
+    plan: free
+    buildCommand: "cd apps/memory-journal-app && pip install -r requirements.txt"
+    startCommand: "cd apps/memory-journal-app && uvicorn main:app --host 0.0.0.0 --port $PORT"
+
+  - type: web
+    name: micro-habit-engine-api
+    env: python
+    region: ohio
+    plan: free
+    buildCommand: "cd apps/micro-habit-engine && pip install -r requirements.txt"
+    startCommand: "cd apps/micro-habit-engine && uvicorn main:app --host 0.0.0.0 --port $PORT"
+
+  - type: web
+    name: visual-intelligence-api
+    env: docker # Heavy ML requires Docker
+    region: ohio
+    plan: starter # Visual Intelligence needs >512MB RAM for PyTorch/YOLO/DeepFace, likely needs Starter tier.
+    dockerfilePath: ./docker/Dockerfile.visual
